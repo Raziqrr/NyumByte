@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "575947766767",
+    "project_id": "nyumbyte",
+    "storage_bucket": "nyumbyte.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:575947766767:android:92b313e29aeb0386c0541a",
+        "android_client_info": {
+          "package_name": "com.example.nyumbyte"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBAUeYsLb3mDG4y95ZsQeNdANoD1CDCEJ4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
