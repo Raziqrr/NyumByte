@@ -8,12 +8,20 @@
  */
 package com.example.nyumbyte.ui
 
+import AuthRepository
+import AuthViewModel
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.nyumbyte.data.network.firebase.AuthDatabase
 import com.example.nyumbyte.ui.navigation.NBNavHost
 
 
@@ -22,18 +30,32 @@ fun NyumByteApp(
     navController: NavHostController = rememberNavController(),
 ){
     Scaffold(
-        topBar = {
-            NBTopAppBar(
-                currentScreen = TODO(),
-                canNavigateBack = TODO(),
-                navigateUp = TODO(),
-                modifier = TODO()
-            )
-        }
+//        topBar = {
+//            NBTopAppBar(
+//                currentScreen = TODO(),
+//                canNavigateBack = TODO(),
+//                navigateUp = TODO(),
+//                modifier = TODO()
+//            )
+//        }
     ) {innerPadding->
+        val context = LocalContext.current.applicationContext
+        val authDao = remember { AuthDatabase.getInstance(context).authDao() }
+        val authViewModel: AuthViewModel = viewModel(
+            factory = object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    val authRepository = AuthRepository(authDao = authDao)
+                    return AuthViewModel(authRepository) as T
+                }
+            }
+        )
+
+
         NBNavHost(
             navController = navController,
-            modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
+            modifier = Modifier.padding(top = innerPadding.calculateTopPadding()),
+            authViewModel = authViewModel
         )
     }
 }
