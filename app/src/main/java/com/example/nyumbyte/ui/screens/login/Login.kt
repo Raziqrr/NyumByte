@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.nyumbyte.data.network.firebase.UserViewModel
 import com.example.nyumbyte.ui.common.AccountTextField
 import com.example.nyumbyte.ui.common.RememberCheckBox
 import com.example.nyumbyte.ui.navigation.Screens
@@ -34,7 +35,7 @@ import kotlinx.coroutines.launch
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-08 12:23:08
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-09 15:08:57
+ * @LastEditTime: 2025-06-10 01:38:24
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/login/Login.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -43,6 +44,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun Login(
     viewModel: AuthViewModel,
+    userViewModel: UserViewModel,
     navController: NavController
 ) {
     var email by remember { mutableStateOf("") }
@@ -60,6 +62,10 @@ fun Login(
     LaunchedEffect(authUiState) {
         if (authUiState.user != null) {
             delay(500)
+            authUiState.user?.uid?.let { uid ->
+                coroutineScope.launch { userViewModel.loadUser(uid) }
+            }
+
             navController.navigate(Screens.HomeMain.name) {
                 popUpTo(Screens.Login.name) { inclusive = true }
             }

@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-06 01:50:49
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-09 17:20:12
+ * @LastEditTime: 2025-06-10 02:02:02
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/navigation/NBNavHost.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -12,10 +12,13 @@ import AuthViewModel
 import android.window.SplashScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import com.example.nyumbyte.data.network.firebase.UserViewModel
 import com.example.nyumbyte.ui.screens.dietplanner.DietPlan
+import com.example.nyumbyte.ui.screens.dietplanner.DietPlanViewModel
 import com.example.nyumbyte.ui.screens.home.Home
 import com.example.nyumbyte.ui.screens.home.Homepage
 import com.example.nyumbyte.ui.screens.login.Login
@@ -26,6 +29,8 @@ import com.example.nyumbyte.ui.screens.splash.NBSplashScreen
 
 @Composable
 fun NBNavHost(
+    userViewModel: UserViewModel,
+    dietPlanViewModel: DietPlanViewModel,
     navController: NavHostController,
     modifier: Modifier,
     authViewModel: AuthViewModel // <-- Inject the shared ViewModel here
@@ -39,7 +44,8 @@ fun NBNavHost(
         composable(route = Screens.SplashScreen.name) {
             NBSplashScreen(
                 navController = navController,
-                authViewModel = authViewModel
+                authViewModel = authViewModel,
+                userViewModel = userViewModel
             )
         }
         
@@ -58,13 +64,16 @@ fun NBNavHost(
         
         composable(route = Screens.HomeMain.name){
             Home(
-                navController
+                navController,
+                dietPlanViewModel
             )
         }
         
         composable(route = Screens.Login.name){
             Login(
-                authViewModel, navController
+                viewModel = authViewModel,
+                userViewModel = userViewModel,
+                navController = navController
             )
         }
         
@@ -74,7 +83,16 @@ fun NBNavHost(
             )
         }
         composable(route = Screens.DietPlans.name){
-            DietPlan()
+            DietPlan(
+                dietPlanViewModel = dietPlanViewModel,
+                onGenerateClick = {
+                    navController.navigate(Screens.CreateDietPlan.name)
+                },
+            )
+        }
+        
+        composable(route = Screens.CreateDietPlan.name){
+            
         }
     }
 }

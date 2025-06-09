@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-09 14:43:17
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-09 17:16:41
+ * @LastEditTime: 2025-06-10 01:46:02
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/home/Home.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -29,10 +29,12 @@ import com.example.nyumbyte.data.model.NavBarItem
 import com.example.nyumbyte.ui.common.CustomNavigationBar
 import com.example.nyumbyte.ui.navigation.Screens
 import com.example.nyumbyte.ui.screens.dietplanner.DietPlan
+import com.example.nyumbyte.ui.screens.dietplanner.DietPlanViewModel
 
 @Composable
 fun Home(
-    navController: NavHostController
+    navController: NavHostController,
+    dietPlanViewModel: DietPlanViewModel
 ) {
     val homeNavController = rememberNavController()
 
@@ -69,7 +71,10 @@ fun Home(
                 Text("Settings Content")
             }
             composable(route = Screens.DietPlans.name){
-                DietPlan()
+                DietPlan(
+                    dietPlanViewModel = dietPlanViewModel,
+                    onGenerateClick = {}
+                )
             }
         }
     }
