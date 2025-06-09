@@ -9,4 +9,6 @@
     <string name="nyumbyte">NyumByte</string>
     <string name="nyumbyte_home">NyumByte Home</string>
     <string name="diet_plans">Diet Plans</string>
+    <string name="create_diet_plan">Create Diet Plan</string>
+    <string name="diet_plan_result">Diet Plan Result</string>
 </resources>

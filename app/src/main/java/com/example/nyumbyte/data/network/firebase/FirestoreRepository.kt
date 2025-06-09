@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-07 00:01:32
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-08 01:41:05
+ * @LastEditTime: 2025-06-10 01:31:47
  * @FilePath: app/src/main/java/com/example/nyumbyte/data/network/firebase/FirestoreRepository.kt
  * @Description: Centralized Firestore functions for user data
  */
@@ -61,6 +61,7 @@ object FirestoreRepository {
                 .await()
             if (snapshot.exists()) {
                 Log.d(TAG, "getUserData: Successfully fetched user data for '$uid'.")
+                Log.d(TAG, "getUserData: Successfully fetched user data '${snapshot.data}'.")
                 snapshot.data
             } else {
                 Log.w(TAG, "getUserData: No user found for UID '$uid'.")

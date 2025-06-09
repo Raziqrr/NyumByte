@@ -22,25 +22,21 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.nyumbyte.data.network.firebase.AuthDatabase
+import com.example.nyumbyte.data.network.firebase.FirestoreRepository
+import com.example.nyumbyte.data.network.firebase.UserViewModel
 import com.example.nyumbyte.ui.navigation.NBNavHost
+import com.example.nyumbyte.ui.screens.dietplanner.DietPlanViewModel
 
 
 @Composable
 fun NyumByteApp(
     navController: NavHostController = rememberNavController(),
-){
-    Scaffold(
-//        topBar = {
-//            NBTopAppBar(
-//                currentScreen = TODO(),
-//                canNavigateBack = TODO(),
-//                navigateUp = TODO(),
-//                modifier = TODO()
-//            )
-//        }
-    ) {innerPadding->
+) {
+    Scaffold { innerPadding ->
         val context = LocalContext.current.applicationContext
+
         val authDao = remember { AuthDatabase.getInstance(context).authDao() }
+
         val authViewModel: AuthViewModel = viewModel(
             factory = object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
@@ -51,11 +47,15 @@ fun NyumByteApp(
             }
         )
 
+        val userViewModel: UserViewModel = viewModel()
+        val dietPlanViewModel: DietPlanViewModel = viewModel()
 
         NBNavHost(
             navController = navController,
             modifier = Modifier.padding(top = innerPadding.calculateTopPadding()),
-            authViewModel = authViewModel
+            authViewModel = authViewModel,
+            userViewModel = userViewModel,
+            dietPlanViewModel = dietPlanViewModel
         )
     }
 }
