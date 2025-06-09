@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-06 01:12:09
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-08 00:19:35
+ * @LastEditTime: 2025-06-09 16:45:44
  * @FilePath: app/src/main/java/com/example/nyumbyte/data/model/User.kt
  * @Description: Improved data model with safe conversion
  */
@@ -26,7 +26,8 @@ data class User(
     var level: Int,
     var exp: Int,
 
-    val totalPoints: Int,
+    var totalPoints: Int,
+    var friends: List<String>
 ) {
     fun toMap(): Map<String, Any> {
         return mapOf(
@@ -41,7 +42,8 @@ data class User(
             "ethnicity" to ethnicity,
             "level" to level,
             "exp" to exp,
-            "totalPoints" to totalPoints
+            "totalPoints" to totalPoints,
+            "friends" to friends
         )
     }
 
@@ -59,7 +61,8 @@ data class User(
                 ethnicity = map["ethnicity"] as? String ?: "",
                 level = (map["level"] as? Number)?.toInt() ?: 1,
                 exp = (map["exp"] as? Number)?.toInt() ?: 0,
-                totalPoints = (map["totalPoints"] as? Number)?.toInt() ?: 0
+                totalPoints = (map["totalPoints"] as? Number)?.toInt() ?: 0,
+                friends = (map["friends"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
             )
         }
     }

@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-08 12:23:08
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-09 10:36:39
+ * @LastEditTime: 2025-06-09 15:08:57
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/login/Login.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -60,7 +60,7 @@ fun Login(
     LaunchedEffect(authUiState) {
         if (authUiState.user != null) {
             delay(500)
-            navController.navigate(Screens.Home.name) {
+            navController.navigate(Screens.HomeMain.name) {
                 popUpTo(Screens.Login.name) { inclusive = true }
             }
         } else if (authUiState.errorMessage != null) {

@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-08 22:55:23
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-08 23:50:36
+ * @LastEditTime: 2025-06-09 15:09:09
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/splash/NBSplashScreen.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -32,7 +32,7 @@ fun NBSplashScreen(
         val storedUid = authViewModel.getStoredUid()
         if (storedUid != null) {
             Log.d("Splash", "Stored UID found: $storedUid. Navigating to Home.")
-            navController.navigate(Screens.Home.name) {
+            navController.navigate(Screens.HomeMain.name) {
                 popUpTo(Screens.SplashScreen.name) { inclusive = true }
             }
         }
