@@ -7,4 +7,6 @@
     <string name="login">Login</string>
     <string name="successful_registration">Successful Registration</string>
     <string name="nyumbyte">NyumByte</string>
+    <string name="nyumbyte_home">NyumByte Home</string>
+    <string name="diet_plans">Diet Plans</string>
 </resources>

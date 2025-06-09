@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-06 01:50:49
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-08 23:47:34
+ * @LastEditTime: 2025-06-09 17:20:12
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/navigation/NBNavHost.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import com.example.nyumbyte.ui.screens.dietplanner.DietPlan
+import com.example.nyumbyte.ui.screens.home.Home
 import com.example.nyumbyte.ui.screens.home.Homepage
 import com.example.nyumbyte.ui.screens.login.Login
 import com.example.nyumbyte.ui.screens.register.RegisterPhase1
@@ -54,8 +56,10 @@ fun NBNavHost(
             )
         }
         
-        composable(route = Screens.Home.name){
-            Homepage()
+        composable(route = Screens.HomeMain.name){
+            Home(
+                navController
+            )
         }
         
         composable(route = Screens.Login.name){
@@ -68,6 +72,9 @@ fun NBNavHost(
             RegisterSuccessScreen(
                 navController = navController
             )
+        }
+        composable(route = Screens.DietPlans.name){
+            DietPlan()
         }
     }
 }
