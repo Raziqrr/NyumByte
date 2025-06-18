@@ -16,5 +16,6 @@ data class Challenge(
     val description: String,
     val expReward: Int,
     val imagePath: String,
-    val category: String
+    val category: String,
+
 )

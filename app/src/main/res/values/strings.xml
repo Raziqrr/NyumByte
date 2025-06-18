@@ -11,4 +11,6 @@
     <string name="diet_plans">Diet Plans</string>
     <string name="create_diet_plan">Create Diet Plan</string>
     <string name="diet_plan_result">Diet Plan Result</string>
+    <string name="challenge_page">Challenge Page\n</string>
+    <string name="social">Social Page</string>
 </resources>

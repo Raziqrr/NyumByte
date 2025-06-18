@@ -22,4 +22,8 @@ enum class Screens(@StringRes val title: Int){
     CreateDietPlan(title = (R.string.create_diet_plan)),
     DietPlanResult(title = (R.string.diet_plan_result)),
     Home(title = (R.string.home)),
+    ChallengePage(title = (R.string.challenge_page)),
+    SocialPage(title = (R.string.social)),
+
+
 }

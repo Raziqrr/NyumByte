@@ -1,31 +1,30 @@
-/**
- * @Author: Raziqrr rzqrdzn03@gmail.com
- * @Date: 2025-06-06 01:50:49
- * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-10 02:02:02
- * @FilePath: app/src/main/java/com/example/nyumbyte/ui/navigation/NBNavHost.kt
- * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
- */
 package com.example.nyumbyte.ui.navigation
 
 import AuthViewModel
-import android.window.SplashScreen
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.NavHost
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.nyumbyte.data.network.firebase.UserViewModel
+import com.example.nyumbyte.ui.screens.challenges.ChallengeDetailPage
+import com.example.nyumbyte.ui.screens.challenges.ChallengePage
 import com.example.nyumbyte.ui.screens.dietplanner.DietPlan
 import com.example.nyumbyte.ui.screens.dietplanner.DietPlanViewModel
 import com.example.nyumbyte.ui.screens.home.Home
-import com.example.nyumbyte.ui.screens.home.Homepage
 import com.example.nyumbyte.ui.screens.login.Login
 import com.example.nyumbyte.ui.screens.register.RegisterPhase1
 import com.example.nyumbyte.ui.screens.register.RegisterPhase2
 import com.example.nyumbyte.ui.screens.register.RegisterSuccessScreen
 import com.example.nyumbyte.ui.screens.splash.NBSplashScreen
+import com.google.firebase.auth.FirebaseAuth
+import com.example.nyumbyte.ui.screens.social.SocialPage
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 @Composable
 fun NBNavHost(
@@ -33,8 +32,12 @@ fun NBNavHost(
     dietPlanViewModel: DietPlanViewModel,
     navController: NavHostController,
     modifier: Modifier,
-    authViewModel: AuthViewModel // <-- Inject the shared ViewModel here
+    authViewModel: AuthViewModel
 ) {
+    // Get current logged-in user's ID (or fallback)
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val userId = currentUser?.uid ?: "default_user_id"
+
     NavHost(
         navController = navController,
         startDestination = Screens.SplashScreen.name,
@@ -48,41 +51,43 @@ fun NBNavHost(
                 userViewModel = userViewModel
             )
         }
-        
+
         composable(route = Screens.Register.name) {
             RegisterPhase1(
                 navController = navController,
                 viewModel = authViewModel,
             )
         }
+
         composable(route = Screens.RegisterDetails.name) {
             RegisterPhase2(
                 authViewModel = authViewModel,
                 navController = navController
             )
         }
-        
-        composable(route = Screens.HomeMain.name){
+
+        composable(route = Screens.HomeMain.name) {
             Home(
-                navController,
-                dietPlanViewModel
+                navController = navController,
+                dietPlanViewModel = dietPlanViewModel
             )
         }
-        
-        composable(route = Screens.Login.name){
+
+        composable(route = Screens.Login.name) {
             Login(
                 viewModel = authViewModel,
                 userViewModel = userViewModel,
                 navController = navController
             )
         }
-        
-        composable(route = Screens.RegisterSuccess.name){
+
+        composable(route = Screens.RegisterSuccess.name) {
             RegisterSuccessScreen(
                 navController = navController
             )
         }
-        composable(route = Screens.DietPlans.name){
+
+        composable(route = Screens.DietPlans.name) {
             DietPlan(
                 dietPlanViewModel = dietPlanViewModel,
                 onGenerateClick = {
@@ -90,9 +95,50 @@ fun NBNavHost(
                 },
             )
         }
-        
-        composable(route = Screens.CreateDietPlan.name){
-            
+
+        composable(route = Screens.CreateDietPlan.name) {
+            // TODO: Implement CreateDietPlan screen
         }
+
+        composable("challenge_page") {
+            ChallengePage(
+                onBack = { navController.popBackStack() },
+                onChallengeClick = { challengeId ->
+                    navController.navigate("challenge_detail/$challengeId")
+                },
+                onSocialClick = {
+                    navController.navigate("social_page")
+                }
+            )
+        }
+
+
+        composable(
+            route = "challenge_detail/{challengeId}",
+            arguments = listOf(navArgument("challengeId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val challengeId = backStackEntry.arguments?.getString("challengeId")
+
+            ChallengeDetailPage(
+                navController = navController,
+                challengeId = challengeId,
+                userId = userId // ← use dynamic userId here too
+            )
+        }
+
+
+        composable("social_page") {
+            val userId = Firebase.auth.currentUser?.uid
+            if (userId != null) {
+                SocialPage(userId = userId)
+            } else {
+                Text("User not logged in", color = Color.White)
+            }
+        }
+
+
+
+
+
     }
 }
