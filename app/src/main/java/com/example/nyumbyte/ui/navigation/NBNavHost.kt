@@ -1,6 +1,7 @@
 package com.example.nyumbyte.ui.navigation
 
 import AuthViewModel
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -8,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -20,15 +22,21 @@ import com.example.nyumbyte.ui.screens.dietplanner.DietPlan
 import com.example.nyumbyte.ui.screens.dietplanner.DietPlanViewModel
 import com.example.nyumbyte.ui.screens.home.Home
 import com.example.nyumbyte.ui.screens.login.Login
+
 import com.example.nyumbyte.ui.screens.register.RegisterPhase1
 import com.example.nyumbyte.ui.screens.register.RegisterPhase2
 import com.example.nyumbyte.ui.screens.register.RegisterSuccessScreen
+
+import com.example.nyumbyte.ui.screens.rewards.RewardViewModel
+import com.example.nyumbyte.ui.screens.rewards.RewardViewModelFactory
+import com.example.nyumbyte.ui.screens.rewards.RewardsPage
 import com.example.nyumbyte.ui.screens.splash.NBSplashScreen
 import com.google.firebase.auth.FirebaseAuth
 import com.example.nyumbyte.ui.screens.social.SocialPage
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
+@SuppressLint("ViewModelConstructorInComposable")
 @Composable
 fun NBNavHost(
     userViewModel: UserViewModel,
@@ -145,6 +153,30 @@ fun NBNavHost(
                 Text("User not logged in", color = Color.White)
             }
         }
+
+        composable("rewards_page") {
+            val userId = Firebase.auth.currentUser?.uid
+            if (userId != null) {
+                val viewModel: RewardViewModel = viewModel(
+                    factory = RewardViewModelFactory(userId)
+                )
+                RewardsPage(
+                    onBack = { navController.popBackStack() },
+                    rewardViewModel = viewModel
+                )
+            } else {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("User not logged in", color = Color.White)
+                }
+            }
+        }
+
+
+
+
+
+
+
 
 
 

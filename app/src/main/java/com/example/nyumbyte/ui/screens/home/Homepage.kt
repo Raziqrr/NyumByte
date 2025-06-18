@@ -8,6 +8,8 @@
  */
 package com.example.nyumbyte.ui.screens.home
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +26,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -120,11 +123,33 @@ fun Homepage(
                 }
             }
         }
-        
-        Card { 
-            Column { 
-                Text("Your rewards")
-                Card {  }
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    navController.navigate("rewards_page")
+                }
+                .padding(10.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("🎁 Your Rewards", color = Color.White)
+                Spacer(Modifier.height(6.dp))
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFF4CAF50))
+                        .padding(12.dp)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("Tap to view badges & merch", color = Color.White)
+                    }
+                }
             }
         }
 
