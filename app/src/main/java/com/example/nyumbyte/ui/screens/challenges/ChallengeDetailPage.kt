@@ -1,7 +1,6 @@
 package com.example.nyumbyte.ui.screens.challenges
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,12 +18,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.nyumbyte.R
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -41,24 +41,22 @@ fun ChallengeDetailPage(
     userId: String
 ) {
     var challenge by remember { mutableStateOf<Challenge?>(null) }
-    var isCompleted by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(true) }
     var showParticles by remember { mutableStateOf(false) }
+    var showExpPopup by remember { mutableStateOf(false) }
+    var showPointsPopup by remember { mutableStateOf(false) }
+
     val particles = remember { mutableStateListOf<Particle>() }
     val scope = rememberCoroutineScope()
-    val db = Firebase.firestore
 
-    // Load challenge and user's completion status
+    // Load challenge
     LaunchedEffect(challengeId) {
         if (challengeId == null) return@LaunchedEffect
         try {
-            val doc = db.collection("challenges").document(challengeId).get().await()
+            val doc = Firebase.firestore.collection("challenges").document(challengeId).get().await()
             val loaded = doc.toObject(Challenge::class.java)
             if (loaded != null) {
                 challenge = loaded.copy(id = doc.id)
-                val userCompletedDoc = db.collection("Users").document(userId)
-                    .collection("completedChallenges").document(doc.id).get().await()
-                isCompleted = userCompletedDoc.exists()
             }
         } catch (_: Exception) {
         } finally {
@@ -74,13 +72,19 @@ fun ChallengeDetailPage(
     }
 
     val c = challenge!!
+    val pointReward = when (c.category.lowercase()) {
+        "easy" -> 5
+        "medium" -> 10
+        "hard" -> 15
+        else -> 3
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364))
+                    listOf(Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364))
                 )
             )
             .padding(16.dp)
@@ -132,43 +136,45 @@ fun ChallengeDetailPage(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    if (!isCompleted) {
+                    if (!c.completed) {
                         Button(
                             onClick = {
                                 scope.launch {
-                                    ChallengeRepository.addExp(userId, c.expReward)
+                                    // Add EXP and points
+                                    ChallengeRepository.addExp(userId, c.expReward, c.category)
 
-                                    // Save completion under user document
-                                    db.collection("Users").document(userId)
-                                        .collection("completedChallenges")
+                                    // Mark challenge completed
+                                    Firebase.firestore.collection("challenges")
                                         .document(c.id)
-                                        .set(mapOf("completed" to true)).await()
+                                        .update("completed", true)
+                                    challenge = c.copy(completed = true)
 
-                                    isCompleted = true
-
-                                    // Confetti effect
+                                    // Trigger visuals
                                     particles.clear()
                                     repeat(150) {
                                         val angle = Random.nextFloat() * 360f
                                         val speed = Random.nextFloat() * 800f + 400f
                                         val radius = Random.nextFloat() * 10f + 10f
                                         val color = listOf(
-                                            Color(0xFFFFC107),
-                                            Color(0xFF03A9F4),
-                                            Color(0xFFE91E63),
-                                            Color(0xFF4CAF50),
-                                            Color(0xFFFF5722)
+                                            Color(0xFFFFC107), Color(0xFF03A9F4),
+                                            Color(0xFFE91E63), Color(0xFF4CAF50), Color(0xFFFF5722)
                                         ).random()
                                         particles.add(Particle(angle, speed, color, radius))
                                     }
                                     showParticles = true
+                                    showExpPopup = true
+                                    showPointsPopup = true
+
+                                    delay(1800)
+                                    showExpPopup = false
+                                    showPointsPopup = false
                                 }
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E676)),
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Finish Challenge (+${c.expReward} EXP)")
+                            Text("Finish Challenge (+${c.expReward} EXP, +$pointReward pts)")
                         }
                     } else {
                         Text(
@@ -193,6 +199,58 @@ fun ChallengeDetailPage(
                 modifier = Modifier.fillMaxSize()
             )
         }
+
+        if (showExpPopup) {
+            RewardPopup(
+                text = "+${c.expReward} EXP",
+                color = Color(0xFF00E676),
+                alignment = Alignment.CenterStart,
+                offsetX = 40.dp
+            )
+        }
+
+        if (showPointsPopup) {
+            RewardPopup(
+                text = "+$pointReward pts",
+                color = Color(0xFFFFC107),
+                alignment = Alignment.CenterEnd,
+                offsetX = (-40).dp
+            )
+        }
+    }
+}
+
+@Composable
+fun RewardPopup(
+    text: String,
+    color: Color,
+    alignment: Alignment = Alignment.Center,
+    offsetX: Dp = 0.dp
+) {
+    val transition = rememberInfiniteTransition()
+    val offsetY by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = -100f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        )
+    )
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = alignment
+    ) {
+        Text(
+            text = text,
+            color = color,
+            fontSize = 28.sp,
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier
+                .offset(x = offsetX, y = offsetY.dp)
+                .background(Color.Black.copy(alpha = 0.3f), shape = RoundedCornerShape(12.dp))
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        )
     }
 }
 
