@@ -1,8 +1,11 @@
 package com.example.nyumbyte.ui.navigation
 
 import AuthViewModel
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
@@ -99,7 +102,6 @@ fun NBNavHost(
         composable(route = Screens.CreateDietPlan.name) {
             // TODO: Implement CreateDietPlan screen
         }
-
         composable("challenge_page") {
             ChallengePage(
                 onBack = { navController.popBackStack() },
@@ -112,18 +114,26 @@ fun NBNavHost(
             )
         }
 
-
         composable(
             route = "challenge_detail/{challengeId}",
             arguments = listOf(navArgument("challengeId") { type = NavType.StringType })
         ) { backStackEntry ->
             val challengeId = backStackEntry.arguments?.getString("challengeId")
 
-            ChallengeDetailPage(
-                navController = navController,
-                challengeId = challengeId,
-                userId = userId // ← use dynamic userId here too
-            )
+            val userId = Firebase.auth.currentUser?.uid
+
+            if (userId != null && challengeId != null) {
+                ChallengeDetailPage(
+                    navController = navController,
+                    challengeId = challengeId,
+                    userId = userId
+                )
+            } else {
+                // Show loading or error fallback
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("Failed to load challenge", color = Color.Red)
+                }
+            }
         }
 
 

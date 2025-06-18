@@ -1,3 +1,5 @@
+// ChallengePage.kt
+
 package com.example.nyumbyte.ui.screens.challenges
 
 import androidx.compose.foundation.Image
@@ -14,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -22,39 +23,39 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.nyumbyte.R
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import com.example.nyumbyte.R
+import kotlinx.coroutines.launch
 
 data class UserData(
     val level: Int = 1,
     val exp: Int = 0,
-    val avatarRes: Int = R.drawable.default_avatar // Replace with your default avatar resource
+    val avatarRes: Int = R.drawable.default_avatar
 )
 
 @Composable
 fun ChallengePage(
     onBack: () -> Unit,
     onChallengeClick: (String) -> Unit,
-    userId: String = "ZAK8soAtABTTCEWvT146BAbtEsf1",
     onSocialClick: () -> Unit,
 ) {
+    val currentUser = Firebase.auth.currentUser
+    val userId = currentUser?.uid
+
     var userData by remember { mutableStateOf(UserData()) }
     var isLoading by remember { mutableStateOf(true) }
     var challenges by remember { mutableStateOf<List<Challenge>>(emptyList()) }
     val scope = rememberCoroutineScope()
 
-    // Load user data and challenges from Firebase
     LaunchedEffect(userId) {
-        //addSampleChallengesToFirestore()
+        if (userId == null) return@LaunchedEffect
 
-        // Load challenges once
         challenges = loadChallenges()
-        isLoading = false
 
-        // Realtime listener for user data updates
+        // Listen to user updates
         Firebase.firestore.collection("Users").document(userId)
             .addSnapshotListener { snapshot, _ ->
                 if (snapshot != null && snapshot.exists()) {
@@ -65,10 +66,9 @@ fun ChallengePage(
                         exp = exp,
                         avatarRes = ChallengeRepository.getLevelIcon(level)
                     )
+                    isLoading = false
                 }
             }
-
-
     }
 
     if (isLoading) {
@@ -100,6 +100,7 @@ fun ChallengePage(
                 )
             }
 
+            // User Level Profile Box
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
@@ -110,7 +111,7 @@ fun ChallengePage(
                     .fillMaxWidth()
             ) {
                 Text(
-                    "Level ${userData.level}",
+                    "Level ${userData.level} - ${ChallengeRepository.getLevelName(userData.level)}",
                     style = MaterialTheme.typography.headlineSmall.copy(
                         color = Color.White,
                         fontWeight = FontWeight.Bold
@@ -120,7 +121,8 @@ fun ChallengePage(
                 Image(
                     painter = painterResource(id = userData.avatarRes),
                     contentDescription = "User Avatar",
-                    modifier = Modifier.size(64.dp)
+                    modifier = Modifier.size(80.dp),
+                    contentScale = ContentScale.Crop
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 LinearProgressIndicator(
@@ -139,11 +141,10 @@ fun ChallengePage(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+
             Button(
                 onClick = onSocialClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00BFA5))
             ) {
                 Text("Go to Social Page", color = Color.White)
@@ -164,7 +165,6 @@ fun ChallengePage(
             ) {
                 listOf("Daily", "Easy", "Hard").forEach { category ->
                     val filtered = challenges.filter { it.category == category }
-
                     if (filtered.isNotEmpty()) {
                         item {
                             Text(
@@ -178,49 +178,53 @@ fun ChallengePage(
                         }
 
                         items(filtered) { challenge ->
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .shadow(8.dp, RoundedCornerShape(20.dp))
-                                    .clip(RoundedCornerShape(20.dp))
-                                    .background(Color(0xAA1C1C1C))
-                                    .clickable { onChallengeClick(challenge.id) }
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .padding(16.dp)
-                                        .fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Image(
-                                        painter = painterResource(id = challenge.imageRes),
-                                        contentDescription = challenge.title,
-                                        modifier = Modifier
-                                            .size(56.dp)
-                                            .clip(RoundedCornerShape(12.dp)),
-                                        contentScale = ContentScale.Crop
-                                    )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Column {
-                                        Text(
-                                            challenge.title,
-                                            style = MaterialTheme.typography.titleMedium.copy(
-                                                color = Color.White,
-                                                fontWeight = FontWeight.SemiBold
-                                            )
-                                        )
-                                        Text(
-                                            challenge.description,
-                                            style = MaterialTheme.typography.bodySmall.copy(
-                                                color = Color.LightGray
-                                            )
-                                        )
-                                    }
-                                }
-                            }
+                            ChallengeCard(challenge, onChallengeClick)
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun ChallengeCard(challenge: Challenge, onChallengeClick: (String) -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .clickable { onChallengeClick(challenge.id) },
+        colors = CardDefaults.cardColors(containerColor = Color(0xAA1C1C1C))
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = challenge.imageRes),
+                contentDescription = challenge.title,
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text(
+                    challenge.title,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = Color.White,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+                Text(
+                    challenge.description,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = Color.LightGray
+                    )
+                )
             }
         }
     }

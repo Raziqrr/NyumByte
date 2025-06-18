@@ -52,6 +52,7 @@ fun addSampleChallengesToFirestore() {
     val db = Firebase.firestore
 
     val challenges = listOf(
+        // DAILY (3)
         Challenge(
             title = "Drink 8 glasses of water",
             description = "Stay hydrated throughout the day.",
@@ -61,13 +62,23 @@ fun addSampleChallengesToFirestore() {
             completed = false
         ),
         Challenge(
-            title = "No junk food for a day",
-            description = "Avoid chips, candy, and fast food.",
-            category = "Easy",
-            imageName = "sugarydrink",
-            expReward = 15,
+            title = "Eat 1 fruit or vegetable",
+            description = "Add a fruit or veggie to your meal.",
+            category = "Daily",
+            imageName = "fruit",
+            expReward = 10,
             completed = false
         ),
+        Challenge(
+            title = "Avoid sugary drinks",
+            description = "Only drink water or unsweetened drinks today.",
+            category = "Daily",
+            imageName = "sugarydrink",
+            expReward = 10,
+            completed = false
+        ),
+
+        // EASY (5)
         Challenge(
             title = "Scan one food item",
             description = "Use the Scan & Swap feature.",
@@ -85,11 +96,111 @@ fun addSampleChallengesToFirestore() {
             completed = false
         ),
         Challenge(
-            title = "Log your meals for 3 days",
+            title = "Take a 15-minute walk",
+            description = "Get some light exercise.",
+            category = "Easy",
+            imageName = "fruit",
+            expReward = 10,
+            completed = false
+        ),
+        Challenge(
+            title = "Log your breakfast",
+            description = "Track your first meal of the day.",
+            category = "Easy",
+            imageName = "logmeals",
+            expReward = 10,
+            completed = false
+        ),
+        Challenge(
+            title = "Sleep 7+ hours",
+            description = "Ensure a healthy sleep routine.",
+            category = "Easy",
+            imageName = "sugarydrink",
+            expReward = 10,
+            completed = false
+        ),
+
+        // MEDIUM (5)
+        Challenge(
+            title = "Log meals for 3 days",
             description = "Track your eating habits consistently.",
+            category = "Medium",
+            imageName = "logmeals",
+            expReward = 20,
+            completed = false
+        ),
+        Challenge(
+            title = "Cook 3 meals this week",
+            description = "Get creative in the kitchen.",
+            category = "Medium",
+            imageName = "cook",
+            expReward = 20,
+            completed = false
+        ),
+        Challenge(
+            title = "Avoid fast food for 3 days",
+            description = "Eat homemade or healthy meals.",
+            category = "Medium",
+            imageName = "sugarydrink",
+            expReward = 20,
+            completed = false
+        ),
+        Challenge(
+            title = "Scan 5 different foods",
+            description = "Use Scan & Swap for variety.",
+            category = "Medium",
+            imageName = "scan",
+            expReward = 20,
+            completed = false
+        ),
+        Challenge(
+            title = "Walk 5,000 steps daily for 3 days",
+            description = "Be consistently active.",
+            category = "Medium",
+            imageName = "fruit",
+            expReward = 20,
+            completed = false
+        ),
+
+        // HARD (5)
+        Challenge(
+            title = "Log meals for a full week",
+            description = "Track consistently for 7 days.",
             category = "Hard",
             imageName = "logmeals",
             expReward = 25,
+            completed = false
+        ),
+        Challenge(
+            title = "No sugar for 3 days",
+            description = "Challenge your cravings.",
+            category = "Hard",
+            imageName = "sugarydrink",
+            expReward = 25,
+            completed = false
+        ),
+        Challenge(
+            title = "Cook all meals for 5 days",
+            description = "No eating out!",
+            category = "Hard",
+            imageName = "cook",
+            expReward = 30,
+            completed = false
+        ),
+        Challenge(
+            title = "Only drink water for a week",
+            description = "Cut all other drinks.",
+            category = "Hard",
+            imageName = "sugarydrink",
+            expReward = 30,
+            completed = false
+        ),
+        Challenge(
+            title = "Complete all daily challenges for 7 days",
+            description = "Stay consistent!",
+            category = "Hard",
+            imageName = "logmeals",
+            expReward = 35,
             completed = false
         )
     )
@@ -104,4 +215,5 @@ fun addSampleChallengesToFirestore() {
             }
     }
 }
+
 

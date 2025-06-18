@@ -22,16 +22,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.firestore
+import com.example.nyumbyte.R
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
-import kotlin.text.toIntOrNull
-
 
 data class Particle(val angle: Float, val speed: Float, val color: Color, val radius: Float)
 
@@ -42,19 +41,24 @@ fun ChallengeDetailPage(
     userId: String
 ) {
     var challenge by remember { mutableStateOf<Challenge?>(null) }
+    var isCompleted by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(true) }
     var showParticles by remember { mutableStateOf(false) }
     val particles = remember { mutableStateListOf<Particle>() }
     val scope = rememberCoroutineScope()
+    val db = Firebase.firestore
 
-    // Load challenge from Firestore
+    // Load challenge and user's completion status
     LaunchedEffect(challengeId) {
         if (challengeId == null) return@LaunchedEffect
         try {
-            val doc = Firebase.firestore.collection("challenges").document(challengeId).get().await()
+            val doc = db.collection("challenges").document(challengeId).get().await()
             val loaded = doc.toObject(Challenge::class.java)
             if (loaded != null) {
                 challenge = loaded.copy(id = doc.id)
+                val userCompletedDoc = db.collection("Users").document(userId)
+                    .collection("completedChallenges").document(doc.id).get().await()
+                isCompleted = userCompletedDoc.exists()
             }
         } catch (_: Exception) {
         } finally {
@@ -128,22 +132,21 @@ fun ChallengeDetailPage(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    if (!c.completed) {
+                    if (!isCompleted) {
                         Button(
                             onClick = {
                                 scope.launch {
-                                    // Add EXP to user
                                     ChallengeRepository.addExp(userId, c.expReward)
 
-
-                                    // Mark challenge as completed in Firestore
-                                    Firebase.firestore.collection("challenges")
+                                    // Save completion under user document
+                                    db.collection("Users").document(userId)
+                                        .collection("completedChallenges")
                                         .document(c.id)
-                                        .update("completed", true)
+                                        .set(mapOf("completed" to true)).await()
 
-                                    challenge = c.copy(completed = true)
+                                    isCompleted = true
 
-                                    // Show confetti
+                                    // Confetti effect
                                     particles.clear()
                                     repeat(150) {
                                         val angle = Random.nextFloat() * 360f
@@ -192,7 +195,6 @@ fun ChallengeDetailPage(
         }
     }
 }
-
 
 @Composable
 fun ParticleExplosion(
