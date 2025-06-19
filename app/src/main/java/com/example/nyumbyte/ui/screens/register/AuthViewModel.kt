@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-09 13:53:37
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-09 13:53:43
+ * @LastEditTime: 2025-06-10 01:37:35
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/register/AuthViewModel.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -78,7 +78,6 @@ class AuthViewModel(
             _authUiState.value = _authUiState.value.copy(errorMessage = msg)
             return
         }
-
         _authUiState.value = _authUiState.value.copy(isLoading = true, errorMessage = null)
 
         viewModelScope.launch {

@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-09 13:53:37
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-09 13:53:43
+ * @LastEditTime: 2025-06-20 06:54:47
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/register/RegisterPhase2.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -23,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.nyumbyte.data.model.User
 import com.example.nyumbyte.data.network.firebase.FirestoreRepository
@@ -149,7 +148,10 @@ fun RegisterPhase2(
                         ethnicity = ethnicity,
                         level = 1,
                         exp = 0,
-                        totalPoints = 0
+                        totalPoints = 0,
+                        friends = listOf(),
+                        dietPlan = listOf(),
+                        calorieToday = 0
                     )
 
                     isLoading = true
