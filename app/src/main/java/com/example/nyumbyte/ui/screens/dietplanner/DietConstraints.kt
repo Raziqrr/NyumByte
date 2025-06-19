@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-05-15 10:45:25
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-10 00:56:45
+ * @LastEditTime: 2025-06-20 00:06:07
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/dietplanner/DietConstraints.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -66,12 +66,21 @@ val budgetOptions = listOf(
     "Premium (organic or specialty items)"
 )
 
+val eatingScheduleOptions = listOf(
+    "Standard: 3 meals/day (breakfast, lunch, dinner)",
+    "3 meals + 1 snack (midday or evening)",
+    "3 meals + 2 snacks (mid-morning & afternoon)",
+    "Intermittent fasting (e.g., 16:8, skip breakfast)",
+    "Frequent small meals (every 2–3 hours)",
+    "Custom or irregular schedule"
+)
+
 class DietConstraints(val user: User) {
     var goal: String = ""
     var targetTime: String = ""
     var physicalIntensity: String = ""
-    var sleepPattern: Int = 0
-    var eatingPattern: Int = 0
+    var sleepPattern: String = ""
+    var eatingPattern: String = ""
     var cookingAbility: String = ""
     var budgetConstraints: String = ""
     var targetWeight: Double = 0.0

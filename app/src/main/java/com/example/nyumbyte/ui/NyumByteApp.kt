@@ -10,29 +10,37 @@ package com.example.nyumbyte.ui
 
 import AuthRepository
 import AuthViewModel
+import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.mobileproject.screens.ai_assisstant.ChatViewModel
 import com.example.nyumbyte.data.network.firebase.AuthDatabase
 import com.example.nyumbyte.data.network.firebase.FirestoreRepository
 import com.example.nyumbyte.data.network.firebase.UserViewModel
 import com.example.nyumbyte.ui.navigation.NBNavHost
+import com.example.nyumbyte.ui.navigation.Screens
 import com.example.nyumbyte.ui.screens.dietplanner.DietPlanViewModel
 
 
 @Composable
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 fun NyumByteApp(
     navController: NavHostController = rememberNavController(),
 ) {
-    Scaffold { innerPadding ->
+    Scaffold(
+        contentWindowInsets = WindowInsets(0.dp)
+    ) {innerPadding ->
         val context = LocalContext.current.applicationContext
 
         val authDao = remember { AuthDatabase.getInstance(context).authDao() }
@@ -49,13 +57,15 @@ fun NyumByteApp(
 
         val userViewModel: UserViewModel = viewModel()
         val dietPlanViewModel: DietPlanViewModel = viewModel()
+        val chatViewModel: ChatViewModel = viewModel()
 
         NBNavHost(
             navController = navController,
-            modifier = Modifier.padding(top = innerPadding.calculateTopPadding()),
             authViewModel = authViewModel,
             userViewModel = userViewModel,
-            dietPlanViewModel = dietPlanViewModel
+            dietPlanViewModel = dietPlanViewModel,
+            chatViewModel = chatViewModel,
+            startDestination = Screens.SplashScreen.name
         )
     }
 }

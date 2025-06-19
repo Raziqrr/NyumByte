@@ -2,13 +2,17 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-09 17:15:33
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-19 16:24:48
+ * @LastEditTime: 2025-06-20 06:39:21
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/dietplanner/DietPlans.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
 package com.example.nyumbyte.ui.screens.dietplanner
 
+import PrimaryButton
+import android.widget.Space
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,6 +30,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +52,12 @@ import com.example.nyumbyte.data.network.firebase.UserUiState
 import com.example.nyumbyte.data.network.firebase.UserViewModel
 import com.example.nyumbyte.ui.navigation.Screens
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.ui.graphics.Color
+import com.example.nyumbyte.ui.beta.LiquidGlass
+import com.example.nyumbyte.ui.beta.LiquidGlassConfig
+import com.example.nyumbyte.ui.beta.LiquidGlassText
+import com.example.nyumbyte.ui.common.CustomTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,52 +74,60 @@ fun DietPlan(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "My Diet Plan",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors()
+            CustomTopAppBar(
+                title = "My Diet Plan",
+                onBackClick = { navController.popBackStack() }
             )
-        }
+        },
+        floatingActionButtonPosition = FabPosition.Center,
+        floatingActionButton = {
+            Box(
+                modifier = Modifier.padding(horizontal = 10.dp)
+            ) {
+                PrimaryButton(
+                    onClick = {
+                        navController.navigate(Screens.CreateDietPlan.name)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.Transparent),
+                    text = "Generate New Diet Plan",
+                )
+            }
+        },
+        
+
     ) { innerPadding ->
-        Column(
+
+        // Scrollable content, with padding to avoid being hidden behind top/bottom bars
+        LazyColumn(
             modifier = modifier
                 .padding(innerPadding)
-                .padding(16.dp)
-                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             if (dietPlans.isEmpty()) {
-                Text("No diet plan available.", style = MaterialTheme.typography.bodyMedium)
+                item {
+                    Text(
+                        "No diet plan available.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    items(dietPlans) { plan ->
-                        ExpandableDietPlanCard(plan)
-                    }
+                item { 
+                    Spacer(modifier = Modifier.height(30.dp))
+                }
+                items(dietPlans) { plan ->
+                    ExpandableDietPlanCard(plan)
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    navController.navigate(Screens.CreateDietPlan.name)
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Generate New Diet Plan")
+            // Extra bottom spacer so last item doesn't hide behind button
+            item {
+                Spacer(modifier = Modifier.height(80.dp))
             }
         }
     }
 }
+
