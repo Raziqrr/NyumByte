@@ -24,10 +24,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.*
+import androidx.navigation.navArgument
 import com.example.nyumbyte.data.model.NavBarItem
 import com.example.nyumbyte.ui.common.CustomNavigationBar
 import com.example.nyumbyte.ui.navigation.Screens
+import com.example.nyumbyte.ui.screens.challenges.ChallengeDetailPage
+import com.example.nyumbyte.ui.screens.challenges.ChallengePage
 import com.example.nyumbyte.ui.screens.dietplanner.DietPlan
 import com.example.nyumbyte.ui.screens.dietplanner.DietPlanViewModel
 
@@ -43,7 +47,8 @@ fun Home(
         NavBarItem("AI Chat", Icons.Filled.ChatBubble, "Broco"),
         NavBarItem("Scan", Icons.Filled.CameraAlt, "Scan"),
         NavBarItem("Rewards", Icons.Default.Flag, "Rewards"),
-        NavBarItem("profile", Icons.Default.Person, "Profile")
+        NavBarItem("profile", Icons.Default.Person, "Profile"),
+        NavBarItem("challenge_page", Icons.Default.Flag, "Challenges")
     )//Dummy list
 
     Scaffold(
@@ -76,6 +81,25 @@ fun Home(
                     onGenerateClick = {}
                 )
             }
+            composable(
+                route = "challenge_detail/{challengeId}/{userId}",
+                arguments = listOf(
+                    navArgument("challengeId") { type = NavType.StringType },
+                    navArgument("userId") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val challengeId = backStackEntry.arguments?.getString("challengeId")
+                val userId = backStackEntry.arguments?.getString("userId") ?: return@composable
+
+                ChallengeDetailPage(
+                    navController = navController,
+                    challengeId = challengeId,
+                    userId = userId
+                )
+            }
+
+
+
         }
     }
 }
