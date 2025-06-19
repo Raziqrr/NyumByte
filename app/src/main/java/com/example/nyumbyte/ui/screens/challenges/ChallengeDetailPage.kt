@@ -31,6 +31,7 @@ import kotlinx.coroutines.tasks.await
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
+import androidx.compose.material3.MaterialTheme // ✅ CORRECT
 
 data class Particle(val angle: Float, val speed: Float, val color: Color, val radius: Float)
 
@@ -49,14 +50,17 @@ fun ChallengeDetailPage(
     val particles = remember { mutableStateListOf<Particle>() }
     val scope = rememberCoroutineScope()
 
-    // Load challenge
     LaunchedEffect(challengeId) {
         if (challengeId == null) return@LaunchedEffect
         try {
             val doc = Firebase.firestore.collection("challenges").document(challengeId).get().await()
             val loaded = doc.toObject(Challenge::class.java)
+            val completedMap = doc.get("id") as? Map<String, Boolean> ?: emptyMap()
             if (loaded != null) {
-                challenge = loaded.copy(id = doc.id)
+                challenge = loaded.copy(
+                    docId = doc.id,
+                    completed = completedMap[userId] == true
+                )
             }
         } catch (_: Exception) {
         } finally {
@@ -66,17 +70,17 @@ fun ChallengeDetailPage(
 
     if (isLoading || challenge == null) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = Color.White)
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
         }
         return
     }
 
     val c = challenge!!
     val pointReward = when (c.category.lowercase()) {
-        "easy" -> 5
-        "medium" -> 10
-        "hard" -> 15
-        else -> 3
+        "easy" -> 10
+        "medium" -> 20
+        "hard" -> 30
+        else -> 5
     }
 
     Box(
@@ -84,7 +88,11 @@ fun ChallengeDetailPage(
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    listOf(Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364))
+                    listOf(
+                        MaterialTheme.colorScheme.surfaceVariant,
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.colorScheme.background
+                    )
                 )
             )
             .padding(16.dp)
@@ -94,7 +102,7 @@ fun ChallengeDetailPage(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color.White
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
             }
 
@@ -115,13 +123,13 @@ fun ChallengeDetailPage(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(20.dp)),
-                colors = CardDefaults.cardColors(containerColor = Color(0xAA1C1C1C))
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f))
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text(
                         text = c.title,
                         style = MaterialTheme.typography.headlineSmall.copy(
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -130,7 +138,9 @@ fun ChallengeDetailPage(
 
                     Text(
                         text = c.description,
-                        style = MaterialTheme.typography.bodyLarge.copy(color = Color.LightGray),
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
                         lineHeight = 20.sp
                     )
 
@@ -140,37 +150,59 @@ fun ChallengeDetailPage(
                         Button(
                             onClick = {
                                 scope.launch {
-                                    // Add EXP and points
-                                    ChallengeRepository.addExp(userId, c.expReward, c.category)
+                                    val challengeRef = Firebase.firestore.collection("challenges").document(challengeId!!)
+                                    val snapshot = challengeRef.get().await()
+                                    val idMap = snapshot.get("id") as? Map<String, Boolean> ?: emptyMap()
 
-                                    // Mark challenge completed
-                                    Firebase.firestore.collection("challenges")
-                                        .document(c.id)
-                                        .update("completed", true)
-                                    challenge = c.copy(completed = true)
+                                    if (userId !in idMap.keys) {
+                                        challengeRef.update("id.$userId", true).await()
+                                        ChallengeRepository.addExp(userId, c.expReward, c.category)
 
-                                    // Trigger visuals
-                                    particles.clear()
-                                    repeat(150) {
-                                        val angle = Random.nextFloat() * 360f
-                                        val speed = Random.nextFloat() * 800f + 400f
-                                        val radius = Random.nextFloat() * 10f + 10f
-                                        val color = listOf(
-                                            Color(0xFFFFC107), Color(0xFF03A9F4),
-                                            Color(0xFFE91E63), Color(0xFF4CAF50), Color(0xFFFF5722)
-                                        ).random()
-                                        particles.add(Particle(angle, speed, color, radius))
+                                        challenge = c.copy(completed = true)
+
+                                        particles.clear()
+                                        repeat(150) {
+                                            val angle = Random.nextFloat() * 360f
+                                            val speed = Random.nextFloat() * 800f + 400f
+                                            val radius = Random.nextFloat() * 10f + 10f
+                                            val color = listOf(
+                                                Color(0xFFFFC107), // Amber
+                                                Color(0xFF03A9F4), // Light Blue
+                                                Color(0xFFE91E63), // Pink
+                                                Color(0xFF4CAF50), // Green
+                                                Color(0xFFFF5722), // Deep Orange
+                                                Color(0xFF9C27B0), // Purple
+                                                Color(0xFF00BCD4), // Cyan
+                                                Color(0xFFFFEB3B), // Yellow
+                                                Color(0xFFCDDC39), // Lime
+                                                Color(0xFF8BC34A), // Light Green
+                                                Color(0xFF3F51B5), // Indigo
+                                                Color(0xFF795548), // Brown
+                                                Color(0xFF607D8B), // Blue Grey
+                                                Color(0xFFFF8A65), // Light Orange
+                                                Color(0xFFB2FF59), // Neon Green
+                                                Color(0xFF69F0AE), // Mint
+                                                Color(0xFFFF5252), // Vivid Red
+                                                Color(0xFF448AFF), // Vivid Blue
+                                            ).random()
+
+
+
+
+                                            particles.add(Particle(angle, speed, color, radius))
+                                        }
+
+                                        showParticles = true
+                                        showExpPopup = true
+                                        showPointsPopup = true
+
+                                        delay(1800)
+                                        showExpPopup = false
+                                        showPointsPopup = false
                                     }
-                                    showParticles = true
-                                    showExpPopup = true
-                                    showPointsPopup = true
-
-                                    delay(1800)
-                                    showExpPopup = false
-                                    showPointsPopup = false
                                 }
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E676)),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -179,7 +211,7 @@ fun ChallengeDetailPage(
                     } else {
                         Text(
                             "Challenge Completed ✅",
-                            color = Color(0xFFB0BEC5),
+                            color = MaterialTheme.colorScheme.outline,
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier.align(Alignment.CenterHorizontally)
                         )
@@ -203,7 +235,7 @@ fun ChallengeDetailPage(
         if (showExpPopup) {
             RewardPopup(
                 text = "+${c.expReward} EXP",
-                color = Color(0xFF00E676),
+                color = MaterialTheme.colorScheme.primary,
                 alignment = Alignment.CenterStart,
                 offsetX = 40.dp
             )
@@ -212,7 +244,7 @@ fun ChallengeDetailPage(
         if (showPointsPopup) {
             RewardPopup(
                 text = "+$pointReward pts",
-                color = Color(0xFFFFC107),
+                color = MaterialTheme.colorScheme.tertiary,
                 alignment = Alignment.CenterEnd,
                 offsetX = (-40).dp
             )
@@ -248,7 +280,10 @@ fun RewardPopup(
             fontWeight = FontWeight.ExtraBold,
             modifier = Modifier
                 .offset(x = offsetX, y = offsetY.dp)
-                .background(Color.Black.copy(alpha = 0.3f), shape = RoundedCornerShape(12.dp))
+                .background(
+                    MaterialTheme.colorScheme.surface.copy(alpha = 0.3f),
+                    shape = RoundedCornerShape(12.dp)
+                )
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         )
     }

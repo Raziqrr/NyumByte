@@ -5,43 +5,49 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 
+// Main Challenge Data Class
 data class Challenge(
-    var id: String = "",
     val title: String = "",
     val description: String = "",
-    val category: String = "", // "Daily", "Easy", "Hard"
-    val imageName: String = "",
+    val category: String = "",
     val expReward: Int = 0,
-    var completed: Boolean = false
+    val imageName: String = "", // Used to resolve image from name
+    val completedBy: Map<String, Boolean> = emptyMap(), // Stored in Firestore
 
+    // App-computed fields
+    val docId: String = "",
+    val completed: Boolean = false
 ) {
-    val imageRes: Int
+    // Maps the image name to the corresponding drawable resource
+    val challengeImageRes: Int
         get() = when (imageName.lowercase()) {
-            "fruit" -> R.drawable.fruitchallenge
+            "run" -> R.drawable.run
+            "fruit" -> R.drawable.fruit
+            "water" -> R.drawable.water
+            "veggie" -> R.drawable.veggie
             "sugarydrink" -> R.drawable.sugarydrink
-            "scan" -> R.drawable.scanchallenge
-            "cook" -> R.drawable.cookmeal
+            "scan" -> R.drawable.ic_challenge_scan
+            "cook" -> R.drawable.cook
             "logmeals" -> R.drawable.logmeals
-            else -> R.drawable.sipgod // fallback image
+            else -> R.drawable.default_challenge // fallback image
         }
 }
 
-// Fallback sample challenges (for preview/offline)
-val sampleChallenges = listOf(
-    Challenge("1", "Eat a fruit or veggie with each meal", "Daily nutrition task", "Daily", "fruit", 10),
-    Challenge("2", "Avoid sugary drinks", "Stay hydrated with water", "Daily", "sugarydrink", 10),
-    Challenge("3", "Scan one item with Scan & Swap", "Use app to scan food", "Easy", "scan", 10),
-    Challenge("4", "Cook one meal at home", "Prepare and eat at home", "Easy", "cook", 10),
-    Challenge("5", "Log meals for a week", "Consistency challenge", "Hard", "logmeals", 25)
-)
 
-suspend fun loadChallenges(): List<Challenge> {
+
+
+
+
+suspend fun loadChallengesForUser(userId: String): List<Challenge> {
     return try {
         val snapshot = Firebase.firestore.collection("challenges").get().await()
         snapshot.documents.mapNotNull { doc ->
             val challenge = doc.toObject(Challenge::class.java)
-            val exp = doc.getLong("expReward")?.toInt() ?: challenge?.expReward ?: 0
-            challenge?.copy(id = doc.id, expReward = exp)
+            val completedMap = doc.get("completedBy") as? Map<String, Boolean> ?: emptyMap()
+            challenge?.copy(
+                docId = doc.id,
+                completed = completedMap[userId] == true
+            )
         }
     } catch (e: Exception) {
         emptyList()
@@ -52,14 +58,13 @@ fun addSampleChallengesToFirestore() {
     val db = Firebase.firestore
 
     val challenges = listOf(
-        // DAILY (3)
         Challenge(
             title = "Drink 8 glasses of water",
             description = "Stay hydrated throughout the day.",
             category = "Daily",
-            imageName = "fruit",
+            imageName = "water",
             expReward = 10,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "Eat 1 fruit or vegetable",
@@ -67,7 +72,7 @@ fun addSampleChallengesToFirestore() {
             category = "Daily",
             imageName = "fruit",
             expReward = 10,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "Avoid sugary drinks",
@@ -75,17 +80,15 @@ fun addSampleChallengesToFirestore() {
             category = "Daily",
             imageName = "sugarydrink",
             expReward = 10,
-            completed = false
+            completedBy = emptyMap()
         ),
-
-        // EASY (5)
         Challenge(
             title = "Scan one food item",
             description = "Use the Scan & Swap feature.",
             category = "Easy",
             imageName = "scan",
             expReward = 10,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "Cook one meal yourself",
@@ -93,115 +96,15 @@ fun addSampleChallengesToFirestore() {
             category = "Easy",
             imageName = "cook",
             expReward = 12,
-            completed = false
+            completedBy = emptyMap()
         ),
-        Challenge(
-            title = "Take a 15-minute walk",
-            description = "Get some light exercise.",
-            category = "Easy",
-            imageName = "fruit",
-            expReward = 10,
-            completed = false
-        ),
-        Challenge(
-            title = "Log your breakfast",
-            description = "Track your first meal of the day.",
-            category = "Easy",
-            imageName = "logmeals",
-            expReward = 10,
-            completed = false
-        ),
-        Challenge(
-            title = "Sleep 7+ hours",
-            description = "Ensure a healthy sleep routine.",
-            category = "Easy",
-            imageName = "sugarydrink",
-            expReward = 10,
-            completed = false
-        ),
-
-        // MEDIUM (5)
-        Challenge(
-            title = "Log meals for 3 days",
-            description = "Track your eating habits consistently.",
-            category = "Medium",
-            imageName = "logmeals",
-            expReward = 20,
-            completed = false
-        ),
-        Challenge(
-            title = "Cook 3 meals this week",
-            description = "Get creative in the kitchen.",
-            category = "Medium",
-            imageName = "cook",
-            expReward = 20,
-            completed = false
-        ),
-        Challenge(
-            title = "Avoid fast food for 3 days",
-            description = "Eat homemade or healthy meals.",
-            category = "Medium",
-            imageName = "sugarydrink",
-            expReward = 20,
-            completed = false
-        ),
-        Challenge(
-            title = "Scan 5 different foods",
-            description = "Use Scan & Swap for variety.",
-            category = "Medium",
-            imageName = "scan",
-            expReward = 20,
-            completed = false
-        ),
-        Challenge(
-            title = "Walk 5,000 steps daily for 3 days",
-            description = "Be consistently active.",
-            category = "Medium",
-            imageName = "fruit",
-            expReward = 20,
-            completed = false
-        ),
-
-        // HARD (5)
         Challenge(
             title = "Log meals for a full week",
             description = "Track consistently for 7 days.",
             category = "Hard",
             imageName = "logmeals",
             expReward = 25,
-            completed = false
-        ),
-        Challenge(
-            title = "No sugar for 3 days",
-            description = "Challenge your cravings.",
-            category = "Hard",
-            imageName = "sugarydrink",
-            expReward = 25,
-            completed = false
-        ),
-        Challenge(
-            title = "Cook all meals for 5 days",
-            description = "No eating out!",
-            category = "Hard",
-            imageName = "cook",
-            expReward = 30,
-            completed = false
-        ),
-        Challenge(
-            title = "Only drink water for a week",
-            description = "Cut all other drinks.",
-            category = "Hard",
-            imageName = "sugarydrink",
-            expReward = 30,
-            completed = false
-        ),
-        Challenge(
-            title = "Complete all daily challenges for 7 days",
-            description = "Stay consistent!",
-            category = "Hard",
-            imageName = "logmeals",
-            expReward = 35,
-            completed = false
+            completedBy = emptyMap()
         )
     )
 
@@ -215,5 +118,3 @@ fun addSampleChallengesToFirestore() {
             }
     }
 }
-
-
