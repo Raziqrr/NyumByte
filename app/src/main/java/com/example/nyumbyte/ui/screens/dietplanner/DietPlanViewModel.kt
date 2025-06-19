@@ -25,6 +25,18 @@ class DietPlanViewModel : ViewModel() {
 
     private val conversationHistory = mutableListOf<Content>()
 
+    fun markPlanAsSaved() {
+        _uiState.value = _uiState.value.copy(isSaved = true)
+        _debugMessages.value = listOf("💾 Diet plan marked as saved.")
+    }
+    fun resetState() {
+        _structuredDietPlan.value = emptyList()
+        _debugMessages.value = emptyList()
+        _uiState.value = DietPlanUiState() // or whatever your default is
+        conversationHistory.clear()
+    }
+
+
     fun generateDietPlan(dietConstraints: DietConstraints) {
         viewModelScope.launch {
             println("🔁 Starting diet plan generation")
@@ -44,9 +56,20 @@ class DietPlanViewModel : ViewModel() {
                 val allergiesFormatted = dietConstraints.user.allergies.joinToString(", ").ifBlank { "None" }
 
                 val dietPlanPrompt = """
-                    You are a diet assistant. Generate a personalized diet plan in valid **strict JSON array** format only. 
+                    You are a professional dietician AI. Generate a personalized diet plan in valid **strict JSON array** format only. 
+                    
+                    Think of a diet plan that can fully achieve the goal successfully and within the constraints if given.
+                    Each day should include 3 main meals (breakfast, lunch, dinner) and optionally 1–2 more meals which is based on the goal. Ensure:
+                    - Total daily calories support the user goal (e.g., deficit for weight loss)
+                    - Macronutrient distribution is healthy and goal-aligned
+                    - Meals are realistic for user skill level and budget
+                    - Meals consider allergies and constraints
+                    - Preparation steps are clear and ingredients are listed
+                    
                     
                     ⚠️ Your output must ONLY be a valid JSON array of DietPlan objects (NO text, NO markdown).
+                    
+                    
                     
                     Each DietPlan object:
                     {
@@ -57,20 +80,26 @@ class DietPlanViewModel : ViewModel() {
                           "food_recommended": "Oatmeal with fruits",
                           "food_detail": "Rolled oats with banana and chia seeds",
                           "nutritional_value": "300 kcal, 10g protein, 45g carbs, 7g fat",
-                          "preparation": "Boil oats in water or milk and top with fruits"
+                          "ingredients": [
+                            "1/2 cup rolled oats",
+                            "1 banana",
+                            "1 tsp chia seeds",
+                            "1 cup water or milk"
+                          ],
+                          "preparation": "In a small pot, bring 1 cup of water or milk to a boil. Add 1/2 cup of rolled oats and reduce heat to low. Simmer for 5 minutes, stirring occasionally, until thickened. Slice 1 banana and top the oatmeal with banana slices and 1 tsp chia seeds. Serve warm."
                         }
                       ]
                     }
 
                     User data and constraints:
-                    - Goal: ${dietConstraints.goal}
+                    - Meal Plan Goal: ${dietConstraints.goal}
                     $targetWeightLine
-                    - Duration: ${dietConstraints.targetTime}
-                    - Physical activity intensity: ${dietConstraints.physicalIntensity}
-                    - Sleep pattern: ${dietConstraints.sleepPattern}
-                    - Eating schedule: ${dietConstraints.eatingPattern}
-                    - Cooking ability: ${dietConstraints.cookingAbility}
-                    - Budget constraints: ${dietConstraints.budgetConstraints}
+                    - Goal can be achieved in: ${dietConstraints.targetTime}
+                    - User's Physical activity intensity: ${dietConstraints.physicalIntensity}
+                    - User's Sleep pattern: ${dietConstraints.sleepPattern}
+                    - User's Daily Eating schedule: ${dietConstraints.eatingPattern}
+                    - User's Cooking ability: ${dietConstraints.cookingAbility}
+                    - User's Budget constraints: ${dietConstraints.budgetConstraints}
                     
                     User profile:
                     - Gender: ${dietConstraints.user.gender}
