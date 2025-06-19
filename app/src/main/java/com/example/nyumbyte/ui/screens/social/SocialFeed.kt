@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -56,15 +57,21 @@ fun SocialFeed(userId: String) {
 
     fun fetchFriends(ids: List<String>) {
         scope.launch {
+            val db = Firebase.firestore
             val list = ids.mapNotNull { id ->
                 val doc = db.collection("Users").document(id).get().await()
+                val userName = doc.getString("userName") ?: "Unknown"
+                val level = doc.getLong("level") ?: 1
+                Log.d("FriendFetch", "ID: $id | Name: $userName | Level: $level")
                 if (doc.exists()) {
-                    FriendProfile(id, doc.getString("userName") ?: "", (doc.getLong("level") ?: 1).toInt())
+                    FriendProfile(id, userName, level.toInt())
                 } else null
             }
             friendList = list
         }
     }
+
+
 
     fun addFriend() {
         scope.launch {
@@ -164,6 +171,16 @@ fun SocialFeed(userId: String) {
 
         Spacer(Modifier.height(16.dp))
 
+        Spacer(Modifier.height(16.dp))
+        Text(
+            text = "➕ Add Friend",
+            style = MaterialTheme.typography.titleMedium.copy(
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+        )
+
+        Spacer(Modifier.height(8.dp))
         OutlinedTextField(
             value = friendIdInput,
             onValueChange = { friendIdInput = it },
@@ -171,9 +188,15 @@ fun SocialFeed(userId: String) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        Button(onClick = { addFriend() }, modifier = Modifier.align(Alignment.End)) {
-            Text("Add Friend")
+        Spacer(Modifier.height(8.dp))
+        Button(
+            onClick = { addFriend() },
+            modifier = Modifier.align(Alignment.End),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+        ) {
+            Text("Add Friend", color = MaterialTheme.colorScheme.onSecondary)
         }
+
 
         errorMsg?.let {
             Text(it, color = Color.Red)

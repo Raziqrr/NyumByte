@@ -45,7 +45,7 @@ fun StoryViewer(stories: List<Story>, startIndex: Int, onClose: () -> Unit) {
                             .clickable {
                                 if (index < stories.lastIndex) index++
                                 else onClose()
-                            }
+                                }
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(it.description)
