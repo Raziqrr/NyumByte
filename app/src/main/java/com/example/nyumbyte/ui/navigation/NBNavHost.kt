@@ -13,6 +13,7 @@ import AuthViewModel
 import android.window.SplashScreen
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
@@ -30,6 +31,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.nyumbyte.ui.screens.health.HealthAnalyticsScreen
 import com.example.nyumbyte.ui.screens.home.Homepage
 import com.example.nyumbyte.ui.screens.login.Login
 import com.example.nyumbyte.ui.screens.profile.ProfileScreen
@@ -47,14 +49,19 @@ fun NBNavHost(
 ) {
     val currentBackStackEntry = navController.currentBackStackEntryAsState().value
     val currentRoute = currentBackStackEntry?.destination?.route
-    val showBottomBar = currentRoute == Screens.Home.name || currentRoute == Screens.Profile.name
+    val showBottomBar = currentRoute == Screens.Home.name || currentRoute == Screens.Profile.name ||
+            currentRoute == Screens.Health.name // ✅ Add this line
+
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
                 NavigationBar {
                     val items = listOf(
                         Screens.Home to Icons.Default.Home,
-                        Screens.Profile to Icons.Default.Person
+                        Screens.Health to Icons.Default.BarChart, // ✅ Add Analytics tab
+                                Screens.Profile to Icons.Default.Person,
+
+
                     )
                     items.forEach { (screen, icon) ->
                         NavigationBarItem(
@@ -110,6 +117,8 @@ fun NBNavHost(
                         authViewModel, navController
                     )
                 }
+                composable(route = Screens.Health.name) { HealthAnalyticsScreen() } // ✅ Add this line
+
 
                 composable(route = Screens.RegisterSuccess.name) {
                     RegisterSuccessScreen(

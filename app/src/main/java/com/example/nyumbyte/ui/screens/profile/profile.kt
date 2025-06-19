@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nyumbyte.R
+import com.example.nyumbyte.data.model.Achievement
 import com.example.nyumbyte.data.model.Challenge
 import com.example.nyumbyte.data.model.DailyChallenge
 import java.text.SimpleDateFormat
@@ -85,53 +86,24 @@ fun ProfileScreen(
     var showEditDialog by remember { mutableStateOf(false) }
 
     var carrotsEaten by remember { mutableStateOf(0f) }
-    var streakDays by remember { mutableStateOf(5) }
+    val streakDays by viewModel.streakCount.collectAsState()
     var challengeMarkedComplete by remember { mutableStateOf(false) } // NEW
 
     val scrollState = rememberScrollState()
     // Let's say each carrot eaten = 14 points (5 carrots max = 70 points)
 
 
-
-    LaunchedEffect(carrotsEaten) {
-        if (carrotsEaten >= 5f && !challengeMarkedComplete) {
-            streakDays++
-            challengeMarkedComplete = true
-        }
-        if (carrotsEaten < 5f) {
-            challengeMarkedComplete = false
-        }
+    LaunchedEffect(uid) {
+        viewModel.loadUserData(uid)
+        viewModel.loadAchievements(uid)
+        viewModel.loadDailyChallenges(today, uid)
+        viewModel.loadStreakData(uid) // Load streak info from Firestore
     }
 
-    val achievements = remember(level, streakDays) {
-        mutableListOf(
-            Achievement(
-                title = "Finished 5km Run",
-                description = "Completed the 5km running challenge.",
-                date = "2025-06-05"
-            )
-        ).apply {
-            if (level >= 2) {
-                add(
-                    Achievement(
-                        title = "Leveled Up",
-                        description = "Reached Level 2 by earning 100 XP.",
-                        date = "2025-06-06"
-                    )
-                )
-            }
 
-            if (streakDays >= 5) {
-                add(
-                    Achievement(
-                        title = "5-Day Streak",
-                        description = "Maintained daily streak for 5 days.",
-                        date = "2025-06-06"
-                    )
-                )
-            }
-        }
-    }
+
+    val achievements by viewModel.achievements.collectAsState()
+
 
     val name by viewModel.userName.collectAsState()
     val loading by viewModel.loading.collectAsState()
@@ -198,7 +170,9 @@ fun ProfileScreen(
             EditProfileButton(onEditClick = {
                 showEditDialog = true
             })
-
+            //Button(onClick = { viewModel.testAddAchievement(uid) }) {
+              //  Text("Add Test Achievement")
+            //}
             Spacer(modifier = Modifier.height(16.dp))
             AchievementTimeline(achievements = achievements)
             Spacer(modifier = Modifier.height(16.dp))
@@ -322,11 +296,7 @@ fun ProfileCard(level: Int, xp: Int,userName: String) {
     }
 }
 
-data class Achievement(
-    val title: String,
-    val description: String,
-    val date: String
-)
+
 
 @Composable
 fun AchievementTimeline(

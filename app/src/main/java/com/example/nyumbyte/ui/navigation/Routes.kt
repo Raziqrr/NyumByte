@@ -18,6 +18,7 @@ enum class Screens(@StringRes val title: Int){
     RegisterSuccess(title = (R.string.successful_registration)),
     Login(title = (R.string.login)),
     Home(title = (R.string.home)),
-    Profile(title =(R.string.profile))
+    Profile(title =(R.string.profile)),
+    Health(title =(R.string.health))
 
 }

@@ -8,5 +8,6 @@
     <string name="successful_registration">Successful Registration</string>
     <string name="nyumbyte">NyumByte</string>
     <string name="profile">Profile</string>
+    <string name="health">Health Analysis</string>
 
 </resources>

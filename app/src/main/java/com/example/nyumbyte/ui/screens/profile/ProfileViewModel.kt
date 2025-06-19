@@ -6,13 +6,29 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import android.util.Log
+import com.example.nyumbyte.data.model.Achievement
 import com.example.nyumbyte.data.model.Challenge
 import com.example.nyumbyte.data.model.DailyChallenge
+import com.example.nyumbyte.data.repository.AchievementRepository
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class ProfileViewModel : ViewModel() {
+
+    private val _streakCount = MutableStateFlow(0)
+    val streakCount: StateFlow<Int> = _streakCount
+
+    private val _lastCompletedDate = MutableStateFlow("")
+    val lastCompletedDate: StateFlow<String> = _lastCompletedDate
+
+
     private val _dailyChallenges = MutableStateFlow<List<DailyChallenge>>(emptyList())
     val dailyChallenges: StateFlow<List<DailyChallenge>> = _dailyChallenges
     private val levelThresholds = listOf(0, 100, 250, 500, 1000, 2000)
+    private val _achievements = MutableStateFlow<List<Achievement>>(emptyList())
+    val achievements: StateFlow<List<Achievement>> = _achievements
 
 
     private val _userName = MutableStateFlow<String>("")
@@ -29,6 +45,62 @@ class ProfileViewModel : ViewModel() {
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
+
+    fun loadStreakData(uid: String) {
+        viewModelScope.launch {
+            try {
+                val data = FirestoreRepository.getUserData(uid)
+                _streakCount.value = (data?.get("streakCount") as? Long)?.toInt() ?: 0
+                _lastCompletedDate.value = data?.get("lastCompletedDate") as? String ?: ""
+            } catch (e: Exception) {
+                Log.e("ProfileViewModel", "Failed to load streak data", e)
+            }
+        }
+    }
+
+
+    private fun getYesterdayDate(): String {
+        val cal = Calendar.getInstance()
+        cal.add(Calendar.DATE, -1)
+        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.time)
+    }
+
+    fun updateStreakIfNeeded(uid: String) {
+        val today = getTodayDate()
+        val yesterday = getYesterdayDate()
+
+        if (_lastCompletedDate.value == today) return // already counted today
+
+        val newStreak = when (_lastCompletedDate.value) {
+            yesterday -> _streakCount.value + 1
+            else -> 1 // reset
+        }
+
+        _streakCount.value = newStreak
+        _lastCompletedDate.value = today
+
+        // Save to Firestore
+        viewModelScope.launch {
+            FirestoreRepository.updateUserField(uid, "streakCount", newStreak)
+            FirestoreRepository.updateUserField(uid, "lastCompletedDate", today)
+        }
+    }
+
+
+    fun testAddAchievement(uid: String) {
+        viewModelScope.launch {
+            val testId = "test_achievement_manual"
+            val achievementData = mapOf(
+                "title" to "Test Achievement",
+                "description" to "Manually added for testing display.",
+                "date" to getTodayDate(),
+                "level" to 1,
+                "type" to "manual"
+            )
+            AchievementRepository.saveAchievement(uid, testId, achievementData)
+            loadAchievements(uid) // Refresh the list after adding
+        }
+    }
 
     fun loadDailyChallenges(date: String, uid: String) {
         viewModelScope.launch {
@@ -56,8 +128,10 @@ class ProfileViewModel : ViewModel() {
                 FirestoreRepository.markDailyChallengeCompleted(uid, date, challenge.id)
 
                 // 3. Add XP and calculate new level
+                val previousLevel = _userLevel.value
                 val newXp = _userXp.value + challenge.expReward
                 val newLevel = calculateLevel(newXp)
+
 
                 _userXp.value = newXp
                 _userLevel.value = newLevel
@@ -65,6 +139,20 @@ class ProfileViewModel : ViewModel() {
                 // 4. ✅ Save XP and level to Firestore
                 FirestoreRepository.updateUserField(uid, "exp", newXp)
                 FirestoreRepository.updateUserField(uid, "level", newLevel)
+                if (newLevel > previousLevel) {
+                    val achievementId = "level_$newLevel"
+                    val achievementData = mapOf(
+                        "title" to "Leveled Up",
+                        "description" to "Reached Level $newLevel by earning $newXp XP.",
+                        "date" to getTodayDate(),  // or manually "2025-06-20"
+                        "level" to newLevel,
+                        "type" to "level_up"
+                    )
+                    AchievementRepository.saveAchievement(uid, achievementId, achievementData)
+                    loadAchievements(uid)
+
+                }
+                updateStreakIfNeeded(uid)
 
                 // 5. Optional reload of challenges
                 loadDailyChallenges(date, uid)
@@ -138,6 +226,10 @@ class ProfileViewModel : ViewModel() {
             }
         }
     }
+    private fun getTodayDate(): String {
+        val formatter = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+        return formatter.format(java.util.Date())
+    }
 
     private fun calculateLevel(xp: Int): Int {
         var level = 1
@@ -151,8 +243,16 @@ class ProfileViewModel : ViewModel() {
         return level
     }
 
+    fun loadAchievements(uid: String) {
+        viewModelScope.launch {
+            try {
+                val docs = AchievementRepository.getAchievements(uid)
+                _achievements.value = docs
 
-
-
+            } catch (e: Exception) {
+                Log.e("ProfileViewModel", "Error loading achievements", e)
+            }
+        }
+    }
 }
 
