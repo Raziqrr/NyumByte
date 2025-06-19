@@ -152,6 +152,37 @@ fun Homepage(
                 }
             }
         }
+        Spacer(Modifier.height(10.dp))
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    navController.navigate("status_page") // 👈 Navigate to StatusPage
+                }
+                .padding(10.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("📍 View Friends Map", color = Color.White)
+                Spacer(Modifier.height(6.dp))
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFF2196F3))
+                        .padding(12.dp)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("See where your friends are", color = Color.White)
+                    }
+                }
+            }
+        }
+
 
 
     }

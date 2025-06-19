@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.nyumbyte.data.network.firebase.UserViewModel
+import com.example.nyumbyte.ui.StatusPage
 import com.example.nyumbyte.ui.screens.challenges.ChallengeDetailPage
 import com.example.nyumbyte.ui.screens.challenges.ChallengePage
 import com.example.nyumbyte.ui.screens.dietplanner.DietPlan
@@ -170,6 +171,11 @@ fun NBNavHost(
                 }
             }
         }
+
+        composable("status_page") {
+            StatusPage()
+        }
+
 
 
 
