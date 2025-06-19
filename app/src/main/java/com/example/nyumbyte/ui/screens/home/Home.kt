@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
+
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.example.nyumbyte.data.model.NavBarItem
@@ -34,6 +34,11 @@ import com.example.nyumbyte.ui.screens.challenges.ChallengeDetailPage
 import com.example.nyumbyte.ui.screens.challenges.ChallengePage
 import com.example.nyumbyte.ui.screens.dietplanner.DietPlan
 import com.example.nyumbyte.ui.screens.dietplanner.DietPlanViewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 @Composable
 fun Home(
@@ -82,21 +87,44 @@ fun Home(
                 )
             }
             composable(
-                route = "challenge_detail/{challengeId}/{userId}",
-                arguments = listOf(
-                    navArgument("challengeId") { type = NavType.StringType },
-                    navArgument("userId") { type = NavType.StringType }
-                )
+                route = "challengeDetail/{challengeId}",
+                arguments = listOf(navArgument("challengeId") {
+                    type = NavType.StringType
+                    nullable = false  // set true if you allow null
+                })
             ) { backStackEntry ->
-                val challengeId = backStackEntry.arguments?.getString("challengeId")
-                val userId = backStackEntry.arguments?.getString("userId") ?: return@composable
+                val challengeId = backStackEntry.arguments?.getString("challengeId") ?: ""
 
-                ChallengeDetailPage(
-                    navController = navController,
-                    challengeId = challengeId,
-                    userId = userId
-                )
+                NavHost(navController, startDestination = "challengePage") {
+                    composable("challengePage") {
+                        ChallengePage(
+                            onBack = { /* ... */ },
+                            onChallengeClick = { challengeId ->
+                                navController.navigate("challengeDetail/$challengeId")
+                            },
+                            onSocialClick = { /* ... */ }
+                        )
+                    }
+
+                    composable(
+                        "challengeDetail/{challengeId}",
+                        arguments = listOf(navArgument("challengeId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val challengeId = backStackEntry.arguments?.getString("challengeId")
+                        ChallengeDetailPage(
+                            navController = navController,
+                            challengeId = challengeId,
+                            userId = Firebase.auth.currentUser?.uid ?: "" // or from ViewModel
+                        )
+                    }
+
+                }
+
+
             }
+
+
+
 
 
 

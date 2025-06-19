@@ -120,7 +120,8 @@ fun NBNavHost(
             ChallengePage(
                 onBack = { navController.popBackStack() },
                 onChallengeClick = { challengeId ->
-                    navController.navigate("challenge_detail/$challengeId")
+                    navController.navigate("challengeDetail/$challengeId")
+
                 },
                 onSocialClick = {
                     navController.navigate("social_page")
@@ -128,27 +129,18 @@ fun NBNavHost(
             )
         }
 
-        composable(
-            route = "challenge_detail/{challengeId}",
-            arguments = listOf(navArgument("challengeId") { type = NavType.StringType })
-        ) { backStackEntry ->
+        composable("challengeDetail/{challengeId}") { backStackEntry ->
             val challengeId = backStackEntry.arguments?.getString("challengeId")
+            val userId = Firebase.auth.currentUser?.uid ?: ""
 
-            val userId = Firebase.auth.currentUser?.uid
-
-            if (userId != null && challengeId != null) {
-                ChallengeDetailPage(
-                    navController = navController,
-                    challengeId = challengeId,
-                    userId = userId
-                )
-            } else {
-                // Show loading or error fallback
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Failed to load challenge", color = Color.Red)
-                }
-            }
+            ChallengeDetailPage(
+                navController = navController,
+                challengeId = challengeId,
+                userId = userId
+            )
         }
+
+
 
 
         composable("social_page") {
@@ -186,6 +178,9 @@ fun NBNavHost(
                 Text("Please log in to view status.")
             }
         }
+
+
+
 
 
 
