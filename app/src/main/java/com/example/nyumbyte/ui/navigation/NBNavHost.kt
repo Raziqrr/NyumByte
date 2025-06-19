@@ -2,8 +2,10 @@ package com.example.nyumbyte.ui.navigation
 
 import AuthViewModel
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,8 +17,10 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.nyumbyte.R
+
 import com.example.nyumbyte.data.network.firebase.UserViewModel
-import com.example.nyumbyte.ui.StatusPage
+
 import com.example.nyumbyte.ui.screens.challenges.ChallengeDetailPage
 import com.example.nyumbyte.ui.screens.challenges.ChallengePage
 import com.example.nyumbyte.ui.screens.dietplanner.DietPlan
@@ -34,6 +38,7 @@ import com.example.nyumbyte.ui.screens.rewards.RewardsPage
 import com.example.nyumbyte.ui.screens.splash.NBSplashScreen
 import com.google.firebase.auth.FirebaseAuth
 import com.example.nyumbyte.ui.screens.social.SocialPage
+import com.example.nyumbyte.ui.screens.status.StatusPage
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -172,9 +177,23 @@ fun NBNavHost(
             }
         }
 
-        composable("status_page") {
-            StatusPage()
+        composable("status") {
+            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+            if (currentUserId != null) {
+                StatusPage(userId = currentUserId)
+            } else {
+                // Optional fallback UI if user is not logged in
+                Text("Please log in to view status.")
+            }
         }
+
+
+
+
+
+
+
+
 
 
 

@@ -6,14 +6,14 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 
 data class Challenge(
-    var id: String = "",
+    val docId: String = "",
     val title: String = "",
     val description: String = "",
-    val category: String = "", // "Daily", "Easy", "Hard"
+    val category: String = "",
     val imageName: String = "",
     val expReward: Int = 0,
-    var completed: Boolean = false
-
+    val completedBy: Map<String, Boolean> = emptyMap(),
+    val completed: Boolean = false
 ) {
     val imageRes: Int
         get() = when (imageName.lowercase()) {
@@ -22,44 +22,43 @@ data class Challenge(
             "scan" -> R.drawable.scanchallenge
             "cook" -> R.drawable.cookmeal
             "logmeals" -> R.drawable.logmeals
-            else -> R.drawable.sipgod // fallback image
+            else -> R.drawable.sipgod
         }
 }
 
-// Fallback sample challenges (for preview/offline)
-val sampleChallenges = listOf(
-    Challenge("1", "Eat a fruit or veggie with each meal", "Daily nutrition task", "Daily", "fruit", 10),
-    Challenge("2", "Avoid sugary drinks", "Stay hydrated with water", "Daily", "sugarydrink", 10),
-    Challenge("3", "Scan one item with Scan & Swap", "Use app to scan food", "Easy", "scan", 10),
-    Challenge("4", "Cook one meal at home", "Prepare and eat at home", "Easy", "cook", 10),
-    Challenge("5", "Log meals for a week", "Consistency challenge", "Hard", "logmeals", 25)
-)
-
-suspend fun loadChallenges(): List<Challenge> {
+// Load challenges and check if user has completed each
+suspend fun loadChallengesForUser(userId: String): List<Challenge> {
     return try {
         val snapshot = Firebase.firestore.collection("challenges").get().await()
         snapshot.documents.mapNotNull { doc ->
             val challenge = doc.toObject(Challenge::class.java)
-            val exp = doc.getLong("expReward")?.toInt() ?: challenge?.expReward ?: 0
-            challenge?.copy(id = doc.id, expReward = exp)
+
+            // ✅ Fix: use the correct field name "id"
+            val completedMap = doc.get("id") as? Map<String, Boolean> ?: emptyMap()
+
+            challenge?.copy(
+                docId = doc.id,
+                completed = completedMap.containsKey(userId) && completedMap[userId] == true
+            )
         }
     } catch (e: Exception) {
         emptyList()
     }
 }
 
+// Add sample challenges to Firestore
 fun addSampleChallengesToFirestore() {
     val db = Firebase.firestore
 
     val challenges = listOf(
-        // DAILY (3)
+        // DAILY
         Challenge(
             title = "Drink 8 glasses of water",
             description = "Stay hydrated throughout the day.",
             category = "Daily",
             imageName = "fruit",
             expReward = 10,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "Eat 1 fruit or vegetable",
@@ -67,7 +66,7 @@ fun addSampleChallengesToFirestore() {
             category = "Daily",
             imageName = "fruit",
             expReward = 10,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "Avoid sugary drinks",
@@ -75,17 +74,17 @@ fun addSampleChallengesToFirestore() {
             category = "Daily",
             imageName = "sugarydrink",
             expReward = 10,
-            completed = false
+            completedBy = emptyMap()
         ),
 
-        // EASY (5)
+        // EASY
         Challenge(
             title = "Scan one food item",
             description = "Use the Scan & Swap feature.",
             category = "Easy",
             imageName = "scan",
             expReward = 10,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "Cook one meal yourself",
@@ -93,7 +92,7 @@ fun addSampleChallengesToFirestore() {
             category = "Easy",
             imageName = "cook",
             expReward = 12,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "Take a 15-minute walk",
@@ -101,7 +100,7 @@ fun addSampleChallengesToFirestore() {
             category = "Easy",
             imageName = "fruit",
             expReward = 10,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "Log your breakfast",
@@ -109,7 +108,7 @@ fun addSampleChallengesToFirestore() {
             category = "Easy",
             imageName = "logmeals",
             expReward = 10,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "Sleep 7+ hours",
@@ -117,17 +116,17 @@ fun addSampleChallengesToFirestore() {
             category = "Easy",
             imageName = "sugarydrink",
             expReward = 10,
-            completed = false
+            completedBy = emptyMap()
         ),
 
-        // MEDIUM (5)
+        // MEDIUM
         Challenge(
             title = "Log meals for 3 days",
             description = "Track your eating habits consistently.",
             category = "Medium",
             imageName = "logmeals",
             expReward = 20,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "Cook 3 meals this week",
@@ -135,7 +134,7 @@ fun addSampleChallengesToFirestore() {
             category = "Medium",
             imageName = "cook",
             expReward = 20,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "Avoid fast food for 3 days",
@@ -143,7 +142,7 @@ fun addSampleChallengesToFirestore() {
             category = "Medium",
             imageName = "sugarydrink",
             expReward = 20,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "Scan 5 different foods",
@@ -151,7 +150,7 @@ fun addSampleChallengesToFirestore() {
             category = "Medium",
             imageName = "scan",
             expReward = 20,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "Walk 5,000 steps daily for 3 days",
@@ -159,17 +158,17 @@ fun addSampleChallengesToFirestore() {
             category = "Medium",
             imageName = "fruit",
             expReward = 20,
-            completed = false
+            completedBy = emptyMap()
         ),
 
-        // HARD (5)
+        // HARD
         Challenge(
             title = "Log meals for a full week",
             description = "Track consistently for 7 days.",
             category = "Hard",
             imageName = "logmeals",
             expReward = 25,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "No sugar for 3 days",
@@ -177,7 +176,7 @@ fun addSampleChallengesToFirestore() {
             category = "Hard",
             imageName = "sugarydrink",
             expReward = 25,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "Cook all meals for 5 days",
@@ -185,7 +184,7 @@ fun addSampleChallengesToFirestore() {
             category = "Hard",
             imageName = "cook",
             expReward = 30,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "Only drink water for a week",
@@ -193,7 +192,7 @@ fun addSampleChallengesToFirestore() {
             category = "Hard",
             imageName = "sugarydrink",
             expReward = 30,
-            completed = false
+            completedBy = emptyMap()
         ),
         Challenge(
             title = "Complete all daily challenges for 7 days",
@@ -201,7 +200,7 @@ fun addSampleChallengesToFirestore() {
             category = "Hard",
             imageName = "logmeals",
             expReward = 35,
-            completed = false
+            completedBy = emptyMap()
         )
     )
 
@@ -215,5 +214,3 @@ fun addSampleChallengesToFirestore() {
             }
     }
 }
-
-

@@ -1,5 +1,3 @@
-// ChallengePage.kt
-
 package com.example.nyumbyte.ui.screens.challenges
 
 import androidx.compose.foundation.Image
@@ -15,19 +13,20 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nyumbyte.R
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.launch
 
 data class UserData(
@@ -43,7 +42,7 @@ fun ChallengePage(
     onSocialClick: () -> Unit,
 ) {
     val currentUser = Firebase.auth.currentUser
-    val userId = currentUser?.uid
+    val userId = currentUser?.uid ?: return
 
     var userData by remember { mutableStateOf(UserData()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -51,11 +50,8 @@ fun ChallengePage(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(userId) {
-        if (userId == null) return@LaunchedEffect
+        challenges = loadChallengesForUser(userId)
 
-        challenges = loadChallenges()
-
-        // Listen to user updates
         Firebase.firestore.collection("Users").document(userId)
             .addSnapshotListener { snapshot, _ ->
                 if (snapshot != null && snapshot.exists()) {
@@ -100,7 +96,6 @@ fun ChallengePage(
                 )
             }
 
-            // User Level Profile Box
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
@@ -163,7 +158,7 @@ fun ChallengePage(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                listOf("Daily", "Easy", "Hard").forEach { category ->
+                listOf("Daily", "Easy", "Medium", "Hard").forEach { category ->
                     val filtered = challenges.filter { it.category == category }
                     if (filtered.isNotEmpty()) {
                         item {
@@ -178,7 +173,9 @@ fun ChallengePage(
                         }
 
                         items(filtered) { challenge ->
-                            ChallengeCard(challenge, onChallengeClick)
+                            ChallengeCard(challenge) { id ->
+                                onChallengeClick(id)
+                            }
                         }
                     }
                 }
@@ -189,12 +186,22 @@ fun ChallengePage(
 
 @Composable
 fun ChallengeCard(challenge: Challenge, onChallengeClick: (String) -> Unit) {
+    val isCompleted = challenge.completed
+
+    val cardColor = if (isCompleted) Color(0xFF2E2E2E) else Color(0xFF1C1C1C)
+    val titleColor = if (isCompleted) Color(0xFFB0BEC5) else Color.White
+    val descColor = if (isCompleted) Color(0xFF9E9E9E) else Color.LightGray
+    val textDecoration = if (isCompleted) TextDecoration.LineThrough else TextDecoration.None
+    val imageAlpha = if (isCompleted) 0.25f else 1f
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .clickable { onChallengeClick(challenge.id) },
-        colors = CardDefaults.cardColors(containerColor = Color(0xAA1C1C1C))
+            .clickable(enabled = !isCompleted) {
+                onChallengeClick(challenge.docId)
+            },
+        colors = CardDefaults.cardColors(containerColor = cardColor)
     ) {
         Row(
             modifier = Modifier
@@ -202,30 +209,55 @@ fun ChallengeCard(challenge: Challenge, onChallengeClick: (String) -> Unit) {
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(id = challenge.imageRes),
-                contentDescription = challenge.title,
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                contentScale = ContentScale.Crop
-            )
+            Box(modifier = Modifier.size(60.dp)) {
+                Image(
+                    painter = painterResource(id = challenge.imageRes),
+                    contentDescription = challenge.title,
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(RoundedCornerShape(12.dp))
+                        .alpha(imageAlpha),
+                    contentScale = ContentScale.Crop
+                )
+
+                if (isCompleted) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .background(Color.Green, shape = RoundedCornerShape(8.dp))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            "DONE",
+                            fontSize = 10.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.width(12.dp))
-            Column {
+
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     challenge.title,
                     style = MaterialTheme.typography.titleMedium.copy(
-                        color = Color.White,
-                        fontWeight = FontWeight.SemiBold
+                        color = titleColor,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = if (isCompleted) 14.sp else 16.sp,
+                        textDecoration = textDecoration
                     )
                 )
                 Text(
                     challenge.description,
                     style = MaterialTheme.typography.bodySmall.copy(
-                        color = Color.LightGray
+                        color = descColor,
+                        fontSize = 12.sp
                     )
                 )
             }
         }
     }
 }
+

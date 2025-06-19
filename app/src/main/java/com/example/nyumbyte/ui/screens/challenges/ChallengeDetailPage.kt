@@ -49,15 +49,19 @@ fun ChallengeDetailPage(
     val particles = remember { mutableStateListOf<Particle>() }
     val scope = rememberCoroutineScope()
 
-    // Load challenge
     LaunchedEffect(challengeId) {
         if (challengeId == null) return@LaunchedEffect
         try {
             val doc = Firebase.firestore.collection("challenges").document(challengeId).get().await()
             val loaded = doc.toObject(Challenge::class.java)
+            val completedMap = doc.get("id") as? Map<String, Boolean> ?: emptyMap()
             if (loaded != null) {
-                challenge = loaded.copy(id = doc.id)
+                challenge = loaded.copy(
+                    docId = doc.id, // use document ID
+                    completed = completedMap[userId] == true // mark as completed if user exists
+                )
             }
+
         } catch (_: Exception) {
         } finally {
             isLoading = false
@@ -73,10 +77,10 @@ fun ChallengeDetailPage(
 
     val c = challenge!!
     val pointReward = when (c.category.lowercase()) {
-        "easy" -> 5
-        "medium" -> 10
-        "hard" -> 15
-        else -> 3
+        "easy" -> 10
+        "medium" -> 20
+        "hard" -> 30
+        else -> 5
     }
 
     Box(
@@ -140,34 +144,40 @@ fun ChallengeDetailPage(
                         Button(
                             onClick = {
                                 scope.launch {
-                                    // Add EXP and points
-                                    ChallengeRepository.addExp(userId, c.expReward, c.category)
+                                    val challengeRef = Firebase.firestore.collection("challenges").document(challengeId!!)
+                                    val snapshot = challengeRef.get().await()
+                                    val idMap = snapshot.get("id") as? Map<String, Boolean> ?: emptyMap()
 
-                                    // Mark challenge completed
-                                    Firebase.firestore.collection("challenges")
-                                        .document(c.id)
-                                        .update("completed", true)
-                                    challenge = c.copy(completed = true)
+                                    if (userId !in idMap.keys) {
+                                        // Mark user completed
+                                        challengeRef.update("id.$userId", true).await()
 
-                                    // Trigger visuals
-                                    particles.clear()
-                                    repeat(150) {
-                                        val angle = Random.nextFloat() * 360f
-                                        val speed = Random.nextFloat() * 800f + 400f
-                                        val radius = Random.nextFloat() * 10f + 10f
-                                        val color = listOf(
-                                            Color(0xFFFFC107), Color(0xFF03A9F4),
-                                            Color(0xFFE91E63), Color(0xFF4CAF50), Color(0xFFFF5722)
-                                        ).random()
-                                        particles.add(Particle(angle, speed, color, radius))
+                                        // Add EXP and points
+                                        ChallengeRepository.addExp(userId, c.expReward, c.category)
+
+                                        // Show visuals
+                                        challenge = c.copy(completed = true)
+
+                                        particles.clear()
+                                        repeat(150) {
+                                            val angle = Random.nextFloat() * 360f
+                                            val speed = Random.nextFloat() * 800f + 400f
+                                            val radius = Random.nextFloat() * 10f + 10f
+                                            val color = listOf(
+                                                Color(0xFFFFC107), Color(0xFF03A9F4),
+                                                Color(0xFFE91E63), Color(0xFF4CAF50), Color(0xFFFF5722)
+                                            ).random()
+                                            particles.add(Particle(angle, speed, color, radius))
+                                        }
+
+                                        showParticles = true
+                                        showExpPopup = true
+                                        showPointsPopup = true
+
+                                        delay(1800)
+                                        showExpPopup = false
+                                        showPointsPopup = false
                                     }
-                                    showParticles = true
-                                    showExpPopup = true
-                                    showPointsPopup = true
-
-                                    delay(1800)
-                                    showExpPopup = false
-                                    showPointsPopup = false
                                 }
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E676)),
