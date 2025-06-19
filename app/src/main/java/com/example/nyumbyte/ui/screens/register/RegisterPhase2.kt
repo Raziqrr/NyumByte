@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-09 13:53:37
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-19 16:05:40
+ * @LastEditTime: 2025-06-20 06:54:47
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/register/RegisterPhase2.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -151,6 +151,7 @@ fun RegisterPhase2(
                         totalPoints = 0,
                         friends = listOf(),
                         dietPlan = listOf(),
+                        calorieToday = 0
                     )
 
                     isLoading = true

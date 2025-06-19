@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-05 22:23:15
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-10 00:05:54
+ * @LastEditTime: 2025-06-20 00:33:11
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/theme/Theme.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -100,7 +100,7 @@ private val darkScheme = darkColorScheme(
 fun NyumByteTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

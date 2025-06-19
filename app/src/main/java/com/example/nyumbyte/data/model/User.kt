@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-06 01:12:09
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-19 16:05:24
+ * @LastEditTime: 2025-06-20 06:54:26
  * @FilePath: app/src/main/java/com/example/nyumbyte/data/model/User.kt
  * @Description: Improved data model with safe conversion
  */
@@ -30,7 +30,9 @@ data class User(
     var totalPoints: Int,
     var friends: List<String>,
 
-    var dietPlan: List<DietPlan>
+    var dietPlan: List<DietPlan>,
+    
+    var calorieToday: Int,
 
 ) {
     fun toMap(): Map<String, Any?> {
@@ -48,7 +50,8 @@ data class User(
             "exp" to exp,
             "totalPoints" to totalPoints,
             "friends" to friends,
-            "dietPlan" to dietPlan.map { it.toMap() }
+            "dietPlan" to dietPlan.map { it.toMap() },
+            "calorieToday" to calorieToday
 
         )
     }
@@ -74,7 +77,8 @@ data class User(
                         @Suppress("UNCHECKED_CAST")
                         dietPlanFromMap(mealMap as Map<String, Any?>)
                     }
-                } ?: emptyList()
+                } ?: emptyList(),
+                calorieToday = (map["calorieToday"] as? Number)?.toInt() ?: 0,
 
             )
         }

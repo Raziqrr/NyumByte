@@ -1,6 +1,7 @@
 package com.example.nyumbyte.ui.screens.dietplanner
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,6 +25,9 @@ import com.example.nyumbyte.data.model.Meal
 import com.example.nyumbyte.data.model.User
 import com.example.nyumbyte.data.network.firebase.UserUiState
 import com.example.nyumbyte.data.network.firebase.UserViewModel
+import com.example.nyumbyte.ui.beta.LiquidGlass
+import com.example.nyumbyte.ui.beta.LiquidGlassConfig
+import com.example.nyumbyte.ui.beta.LiquidGlassText
 import kotlinx.coroutines.launch
 
 
@@ -71,7 +76,6 @@ fun DietPlanResultScreen(
                 navigationIcon = {
                     IconButton(onClick = {
                         dietPlanViewModel.resetState()
-
                         navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
@@ -149,6 +153,10 @@ fun DietPlanResultScreen(
 @Composable
 fun ExpandableDietPlanCard(plan: DietPlan) {
     var expanded by remember { mutableStateOf(false) }
+    val rotationAngle by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        label = "RotationAnimation"
+    )
 
     // Calculate once (recomposed safely)
     val totalCalories = remember(plan) {
@@ -158,14 +166,13 @@ fun ExpandableDietPlanCard(plan: DietPlan) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFFF0F0F0))
             .clickable { expanded = !expanded }
-            .padding(12.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
+
             Text(
                 text = "${plan.day} - 🔥 $totalCalories kcal",
                 style = MaterialTheme.typography.titleMedium,
@@ -173,8 +180,11 @@ fun ExpandableDietPlanCard(plan: DietPlan) {
                 modifier = Modifier.weight(1f)
             )
             Icon(
-                imageVector = if (expanded) Icons.Filled.ArrowDropDown else Icons.Filled.ArrowDropDown,
-                contentDescription = if (expanded) "Collapse" else "Expand"
+                imageVector = Icons.Filled.ArrowDropDown,
+                contentDescription = if (expanded) "Collapse" else "Expand",
+                modifier = Modifier.graphicsLayer {
+                    rotationZ = rotationAngle
+                }
             )
         }
 

@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-10 01:07:56
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-19 17:28:51
+ * @LastEditTime: 2025-06-20 06:04:16
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/dietplanner/MealCard.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -46,11 +46,15 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import com.example.nyumbyte.ui.beta.LiquidGlass
+import com.example.nyumbyte.ui.beta.LiquidGlassConfig
+import com.example.nyumbyte.ui.beta.LiquidGlassText
 import com.example.nyumbyte.ui.theme.carbBorder
 import com.example.nyumbyte.ui.theme.carbColor
 import com.example.nyumbyte.ui.theme.defaultBorder
@@ -75,7 +79,8 @@ fun MealCard(meal: Meal) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { expanded = !expanded },
+            .clickable { expanded = !expanded }
+            ,
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
@@ -108,7 +113,7 @@ fun MealCard(meal: Meal) {
                 Column {
                     Spacer(Modifier.height(8.dp))
                     Text(meal.food_detail, style = MaterialTheme.typography.bodyMedium)
-
+                    
                     Spacer(Modifier.height(4.dp))
                     Text("Preparation", fontWeight = FontWeight.SemiBold)
                     Text(meal.preparation, style = MaterialTheme.typography.bodyMedium)

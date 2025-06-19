@@ -14,4 +14,8 @@
     <string name="challenge_page">Challenge Page\n</string>
     <string name="social">Social Page</string>
     <string name="rewards_page">Reward Page\n</string>
+    <string name="chat_with_broco">Chat with Broco</string>
+    <string name="my_diet_plan">My Diet Plan</string>
+    <string name="new_diet_plan">New Diet Plan</string>
+    <string name="broco">Broco</string>
 </resources>

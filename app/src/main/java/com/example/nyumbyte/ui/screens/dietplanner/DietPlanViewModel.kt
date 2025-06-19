@@ -94,10 +94,10 @@ class DietPlanViewModel : ViewModel() {
                     User data and constraints:
                     - Meal Plan Goal: ${dietConstraints.goal}
                     $targetWeightLine
-                    - Achievabale in given Duration: ${dietConstraints.targetTime}
+                    - Goal can be achieved in: ${dietConstraints.targetTime}
                     - User's Physical activity intensity: ${dietConstraints.physicalIntensity}
                     - User's Sleep pattern: ${dietConstraints.sleepPattern}
-                    - User's Eating schedule: ${dietConstraints.eatingPattern}
+                    - User's Daily Eating schedule: ${dietConstraints.eatingPattern}
                     - User's Cooking ability: ${dietConstraints.cookingAbility}
                     - User's Budget constraints: ${dietConstraints.budgetConstraints}
                     
