@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-06 01:05:24
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-08 22:58:59
+ * @LastEditTime: 2025-06-20 03:22:43
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/navigation/Routes.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -17,8 +17,13 @@ enum class Screens(@StringRes val title: Int){
     RegisterDetails(title = (R.string.register_details)),
     RegisterSuccess(title = (R.string.successful_registration)),
     Login(title = (R.string.login)),
+    HomeMain(title = (R.string.nyumbyte_home)),
+    DietPlans(title = (R.string.diet_plans)),
+    CreateDietPlan(title = (R.string.create_diet_plan)),
+    DietPlanResult(title = (R.string.diet_plan_result)),
     Home(title = (R.string.home)),
-    Profile(title =(R.string.profile)),
-    Health(title =(R.string.health))
-
+    Broco(title = (R.string.broco)),
+    ChallengePage(title = (R.string.challenge_page)),
+    SocialPage(title = (R.string.social)),
+    RewardsPage(title = (R.string.rewards_page)),
 }
