@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-05 22:23:15
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-09 17:37:14
+ * @LastEditTime: 2025-06-19 17:20:04
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/theme/Color.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -14,10 +14,26 @@ import androidx.compose.ui.graphics.Color
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-05-06 21:09:03
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-09 17:37:14
+ * @LastEditTime: 2025-06-19 17:20:04
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/theme/Color.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
+
+val kcalColor = Color(0xFFFFA726)         // Orange
+val kcalBorder = Color(0xFFEF6C00)        // Darker orange
+
+val proteinColor = Color(0xFF66BB6A)      // Green
+val proteinBorder = Color(0xFF2E7D32)     // Darker green
+
+val carbColor = Color(0xFF42A5F5)         // Blue
+val carbBorder = Color(0xFF1565C0)        // Darker blue
+
+val fatColor = Color(0xFFEF5350)          // Red
+val fatBorder = Color(0xFFC62828)         // Darker red
+
+val defaultColor = Color(0xFFB0BEC5)      // Gray
+val defaultBorder = Color(0xFF546E7A)     // Darker gray
+
 
 val primaryLight = Color(0xFF3B6939)
 val onPrimaryLight = Color(0xFFFFFFFF)

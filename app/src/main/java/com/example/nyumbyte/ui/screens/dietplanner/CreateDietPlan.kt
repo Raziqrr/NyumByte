@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-05-15 17:37:56
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-10 01:42:07
+ * @LastEditTime: 2025-06-19 16:43:51
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/dietplanner/CreateDietPlan.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -50,17 +50,21 @@ import androidx.navigation.NavController
 
 import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewModelScope
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.Decoder
 import coil.request.ImageRequest
 import coil.ImageLoader
+import com.example.nyumbyte.data.network.firebase.UserUiState
+import com.example.nyumbyte.data.network.firebase.UserViewModel
 import com.example.nyumbyte.ui.navigation.Screens
 
 @Composable
 fun CreateDietPlan(
     navController: NavController,
     dietPlanViewModel: DietPlanViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    userViewModel: UserViewModel
 ) {
     var goal by remember { mutableStateOf("") }
     var targetDuration by remember { mutableStateOf("") }
@@ -71,6 +75,20 @@ fun CreateDietPlan(
 
     val dietPlans by dietPlanViewModel.structuredDietPlan.collectAsState()
     val uiState by dietPlanViewModel.uiState.collectAsState()
+    val userState by userViewModel.userUiState.collectAsState()
+
+    val user = (userState as? UserUiState.Success)?.user
+    
+    
+    
+    if (user == null) {
+        // This is just a temporary fallback, shouldn't happen
+        println(user)
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("⚠️ Failed to load user. Please try again.")
+        }
+        return
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -123,32 +141,34 @@ fun CreateDietPlan(
                 onOptionSelected = { budget = it }
             )
 
-//            Button(
-//                onClick = {
-//                    val constraints = DietConstraints(user = user).apply {
-//                        goal = goal
-//                        targetTime = targetDuration
-//                        physicalIntensity = physicalActivity
-//                        sleepPattern = sleepPatternOptions.indexOf(sleepPattern).toString()
-//                        eatingPattern = 0
-//                        cookingAbility = cookingSkill
-//                        budgetConstraints = budget
-//                    }
-//                    dietPlanViewModel.generateDietPlan(constraints)
-//                },
-//                enabled = !uiState.isLoading && goal.isNotEmpty(),
-//                modifier = Modifier.fillMaxWidth()
-//            ) {
-//                if (uiState.isLoading) {
-//                    CircularProgressIndicator(modifier = Modifier.size(20.dp))
-//                } else {
-//                    Text("Generate Diet Plan")
-//                }
-//            }
+            Button(
+                onClick = {
+                    val constraints = DietConstraints(user = user).apply {
+                        goal = goal
+                        targetTime = targetDuration
+                        physicalIntensity = physicalActivity
+                        sleepPattern = sleepPatternOptions.indexOf(sleepPattern).toString()
+                        eatingPattern = 0
+                        cookingAbility = cookingSkill
+                        budgetConstraints = budget
+                    }
+                    dietPlanViewModel.generateDietPlan(constraints)
+                },
+                enabled = !uiState.isLoading && goal.isNotEmpty(),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp))
+                } else {
+                    Text("Generate Diet Plan")
+                }
+            }
 
             LaunchedEffect(uiState.dietPlans, uiState.isLoading) {
                 if (!uiState.isLoading && uiState.dietPlans.isNotEmpty()) {
-                    navController.navigate(Screens.DietPlanResult.name)
+                    navController.navigate(Screens.DietPlanResult.name) {
+                        popUpTo(Screens.CreateDietPlan.name) { inclusive = true }
+                    }
                 }
             }
         }
@@ -250,3 +270,7 @@ fun NumberInputField(
         modifier = modifier.fillMaxWidth()
     )
 }
+
+
+
+

@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-07 00:01:32
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-10 01:31:47
+ * @LastEditTime: 2025-06-19 15:31:07
  * @FilePath: app/src/main/java/com/example/nyumbyte/data/network/firebase/FirestoreRepository.kt
  * @Description: Centralized Firestore functions for user data
  */
@@ -39,7 +39,7 @@ object FirestoreRepository {
         }
     }
 
-    suspend fun saveUserData(uid: String, data: Map<String, Any>): Boolean {
+    suspend fun saveUserData(uid: String, data: Map<String, Any?>): Boolean {
         return try {
             db.collection(USERS_COLLECTION)
                 .document(uid)

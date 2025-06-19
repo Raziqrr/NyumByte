@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-08 22:55:23
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-10 01:41:20
+ * @LastEditTime: 2025-06-19 15:42:15
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/splash/NBSplashScreen.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */

@@ -2,11 +2,13 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-09 14:43:17
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-10 01:46:02
+ * @LastEditTime: 2025-06-19 17:34:42
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/home/Home.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
 package com.example.nyumbyte.ui.screens.home
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
@@ -26,13 +28,17 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.example.nyumbyte.data.model.NavBarItem
+import com.example.nyumbyte.data.network.firebase.UserViewModel
 import com.example.nyumbyte.ui.common.CustomNavigationBar
 import com.example.nyumbyte.ui.navigation.Screens
 import com.example.nyumbyte.ui.screens.dietplanner.DietPlan
+import com.example.nyumbyte.ui.screens.dietplanner.DietPlanResultScreen
 import com.example.nyumbyte.ui.screens.dietplanner.DietPlanViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Home(
+    userViewModel: UserViewModel,
     navController: NavHostController,
     dietPlanViewModel: DietPlanViewModel
 ) {
@@ -61,6 +67,7 @@ fun Home(
         ) {
             composable(route = Screens.Home.name) {
                 Homepage(
+                    userViewModel =userViewModel,
                     navController = navController
                 )
             }
@@ -72,8 +79,20 @@ fun Home(
             }
             composable(route = Screens.DietPlans.name){
                 DietPlan(
+                    userViewModel = userViewModel,
                     dietPlanViewModel = dietPlanViewModel,
-                    onGenerateClick = {}
+                    onGenerateClick = {
+                        
+                    },
+                    navController = navController
+                )
+            }
+
+            composable(route = Screens.DietPlanResult.name){
+                DietPlanResultScreen(
+                    dietPlanViewModel = dietPlanViewModel,
+                    userViewModel = userViewModel,
+                    navController = navController
                 )
             }
         }

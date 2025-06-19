@@ -2,11 +2,12 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-06 01:12:09
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-09 16:45:44
+ * @LastEditTime: 2025-06-19 16:05:24
  * @FilePath: app/src/main/java/com/example/nyumbyte/data/model/User.kt
  * @Description: Improved data model with safe conversion
  */
 package com.example.nyumbyte.data.model
+import com.example.nyumbyte.data.model.toMap
 
 import androidx.room.PrimaryKey
 
@@ -27,9 +28,12 @@ data class User(
     var exp: Int,
 
     var totalPoints: Int,
-    var friends: List<String>
+    var friends: List<String>,
+
+    var dietPlan: List<DietPlan>
+
 ) {
-    fun toMap(): Map<String, Any> {
+    fun toMap(): Map<String, Any?> {
         return mapOf(
             "id" to id,
             "userName" to userName,
@@ -43,7 +47,9 @@ data class User(
             "level" to level,
             "exp" to exp,
             "totalPoints" to totalPoints,
-            "friends" to friends
+            "friends" to friends,
+            "dietPlan" to dietPlan.map { it.toMap() }
+
         )
     }
 
@@ -63,6 +69,13 @@ data class User(
                 exp = (map["exp"] as? Number)?.toInt() ?: 0,
                 totalPoints = (map["totalPoints"] as? Number)?.toInt() ?: 0,
                 friends = (map["friends"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
+                dietPlan = (map["dietPlan"] as? List<*>)?.mapNotNull {
+                    (it as? Map<*, *>)?.let { mealMap ->
+                        @Suppress("UNCHECKED_CAST")
+                        dietPlanFromMap(mealMap as Map<String, Any?>)
+                    }
+                } ?: emptyList()
+
             )
         }
     }
