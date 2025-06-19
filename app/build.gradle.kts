@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.nyumbyte"
-        minSdk = 26
+        minSdk = 24
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -44,6 +44,9 @@ android {
 }
 
 dependencies {
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -54,7 +57,6 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.foundation.android)
-    implementation(libs.androidx.ui.text.google.fonts)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -114,8 +116,4 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.retrofit2.kotlinx.serialization.converter)
-
-    implementation(libs.accompanist.navigation.animation)
-    implementation(libs.compose.markdown)
-
 }

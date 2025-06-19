@@ -2,177 +2,150 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-06 01:50:49
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-20 06:37:14
+ * @LastEditTime: 2025-06-08 23:47:34
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/navigation/NBNavHost.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
 package com.example.nyumbyte.ui.navigation
+import androidx.compose.runtime.getValue
 
 import AuthViewModel
-import android.os.Build
 import android.window.SplashScreen
-import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import com.example.mobileproject.screens.ai_assisstant.AIAssisstantScreen
-import com.example.mobileproject.screens.ai_assisstant.ChatViewModel
-import com.example.nyumbyte.data.network.firebase.UserViewModel
-import com.example.nyumbyte.ui.screens.dietplanner.CreateDietPlan
-import com.example.nyumbyte.ui.screens.dietplanner.DietPlan
-import com.example.nyumbyte.ui.screens.dietplanner.DietPlanResultScreen
-import com.example.nyumbyte.ui.screens.dietplanner.DietPlanViewModel
-import com.example.nyumbyte.ui.screens.home.Home
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.nyumbyte.ui.screens.health.HealthAnalyticsScreen
 import com.example.nyumbyte.ui.screens.home.Homepage
 import com.example.nyumbyte.ui.screens.login.Login
+import com.example.nyumbyte.ui.screens.profile.ProfileScreen
+import com.example.nyumbyte.ui.screens.profile.ProfileViewModel
 import com.example.nyumbyte.ui.screens.register.RegisterPhase1
 import com.example.nyumbyte.ui.screens.register.RegisterPhase2
 import com.example.nyumbyte.ui.screens.register.RegisterSuccessScreen
 import com.example.nyumbyte.ui.screens.splash.NBSplashScreen
-import com.google.accompanist.navigation.animation.composable
-import androidx.compose.animation.*
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.unit.IntOffset
-import com.google.accompanist.navigation.animation.AnimatedNavHost
 
-@OptIn(ExperimentalAnimationApi::class)
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NBNavHost(
-    startDestination: String,
-    userViewModel: UserViewModel,
-    chatViewModel: ChatViewModel,
-    dietPlanViewModel: DietPlanViewModel,
     navController: NavHostController,
-    modifier: Modifier = Modifier,
-    authViewModel: AuthViewModel
+    modifier: Modifier,
+    authViewModel: AuthViewModel // <-- Inject the shared ViewModel here
 ) {
-    // Define a reusable animation spec for slide transitions
-    val slideAnimationSpec = tween<IntOffset>(
-        durationMillis = 400,
-        easing = FastOutSlowInEasing
+    val currentBackStackEntry = navController.currentBackStackEntryAsState().value
+    val currentRoute = currentBackStackEntry?.destination?.route
+    val showBottomBar = currentRoute == Screens.Home.name || currentRoute == Screens.Profile.name ||
+            currentRoute == Screens.Health.name // ✅ Add this line
+
+    Scaffold(
+        bottomBar = {
+            if (showBottomBar) {
+                NavigationBar {
+                    val items = listOf(
+                        Screens.Home to Icons.Default.Home,
+                        Screens.Health to Icons.Default.BarChart, // ✅ Add Analytics tab
+                                Screens.Profile to Icons.Default.Person,
+
+
+                    )
+                    items.forEach { (screen, icon) ->
+                        NavigationBarItem(
+                            icon = { Icon(icon, contentDescription = screen.name) },
+                            label = { Text(screen.name) },
+                            selected = currentRoute == screen.name,
+                            onClick = {
+                                if (currentRoute != screen.name) {
+                                    navController.navigate(screen.name) {
+                                        popUpTo(Screens.Home.name) { inclusive = false }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        },
+        content = { innerPadding ->
+            NavHost(
+                navController = navController,
+                startDestination = Screens.SplashScreen.name,
+                modifier = modifier.then(Modifier.padding(innerPadding))
+            ) {
+
+                composable(route = Screens.SplashScreen.name) {
+                    NBSplashScreen(
+                        navController = navController,
+                        authViewModel = authViewModel
+                    )
+                }
+
+                composable(route = Screens.Register.name) {
+                    RegisterPhase1(
+                        navController = navController,
+                        viewModel = authViewModel,
+                    )
+                }
+                composable(route = Screens.RegisterDetails.name) {
+                    RegisterPhase2(
+                        authViewModel = authViewModel,
+                        navController = navController
+                    )
+                }
+
+                composable(route = Screens.Home.name) {
+                    Homepage()
+                }
+
+                composable(route = Screens.Login.name) {
+                    Login(
+                        authViewModel, navController
+                    )
+                }
+                composable(route = Screens.Health.name) {
+                    val user = authViewModel.authUiState.collectAsState().value.user
+                    val uid = user?.uid
+
+                    if (uid != null) {
+                        HealthAnalyticsScreen(uid = uid)
+                    } else {
+                        Text("User not logged in.")
+                    }
+                }
+
+
+                composable(route = Screens.RegisterSuccess.name) {
+                    RegisterSuccessScreen(
+                        navController = navController
+                    )
+                }
+                composable(Screens.Profile.name) {
+
+
+                    val user = authViewModel.authUiState.collectAsState().value.user
+                    val uid = user?.uid
+                    val profileViewModel: ProfileViewModel = viewModel()
+
+                    if (uid != null) {
+                        ProfileScreen( uid = uid,viewModel = profileViewModel)
+                    }
+                }
+            }
+        }
     )
-
-    AnimatedNavHost(
-        navController = navController,
-        startDestination = startDestination,
-        enterTransition = {
-            when (initialState.destination.route) {
-                Screens.SplashScreen.name -> fadeIn(animationSpec = tween(500))
-                else -> slideInHorizontally(
-                    initialOffsetX = { 300 },
-                    animationSpec = slideAnimationSpec
-                ) + fadeIn(animationSpec = tween(400))
-            }
-        },
-        exitTransition = {
-            when (targetState.destination.route) {
-                Screens.SplashScreen.name -> fadeOut(animationSpec = tween(300))
-                else -> slideOutHorizontally(
-                    targetOffsetX = { -300 },
-                    animationSpec = slideAnimationSpec
-                ) + fadeOut(animationSpec = tween(400))
-            }
-        },
-        popEnterTransition = {
-            slideInHorizontally(
-                initialOffsetX = { -300 },
-                animationSpec = slideAnimationSpec
-            ) + fadeIn(animationSpec = tween(400))
-        },
-        popExitTransition = {
-            slideOutHorizontally(
-                targetOffsetX = { 300 },
-                animationSpec = slideAnimationSpec
-            ) + fadeOut(animationSpec = tween(400))
         }
-    ) {
-        composable(route = Screens.SplashScreen.name) {
-            NBSplashScreen(
-                navController = navController,
-                authViewModel = authViewModel,
-                userViewModel = userViewModel
-            )
-        }
-
-        composable(route = Screens.Register.name) {
-            RegisterPhase1(
-                navController = navController,
-                viewModel = authViewModel,
-            )
-        }
-
-        composable(route = Screens.RegisterDetails.name) {
-            RegisterPhase2(
-                authViewModel = authViewModel,
-                navController = navController
-            )
-        }
-
-        composable(route = Screens.Home.name) {
-            Homepage(
-                userViewModel = userViewModel,
-                navController = navController,
-            )
-        }
-
-        composable(route = Screens.HomeMain.name) {
-            Home(
-                userViewModel,
-                dietPlanViewModel,
-                authViewModel,
-                chatViewModel
-            )
-        }
-
-        composable(route = Screens.Login.name) {
-            Login(
-                viewModel = authViewModel,
-                userViewModel = userViewModel,
-                navController = navController
-            )
-        }
-
-        composable(route = Screens.RegisterSuccess.name) {
-            RegisterSuccessScreen(
-                navController = navController
-            )
-        }
-
-        composable(route = Screens.DietPlans.name) {
-            DietPlan(
-                userViewModel = userViewModel,
-                dietPlanViewModel = dietPlanViewModel,
-                onGenerateClick = {
-                    navController.navigate(Screens.CreateDietPlan.name)
-                },
-                navController = navController
-            )
-        }
-
-        composable(route = Screens.CreateDietPlan.name) {
-            CreateDietPlan(
-                navController = navController,
-                dietPlanViewModel = dietPlanViewModel,
-                userViewModel = userViewModel
-            )
-        }
-
-        composable(route = Screens.DietPlanResult.name) {
-            DietPlanResultScreen(
-                dietPlanViewModel = dietPlanViewModel,
-                userViewModel = userViewModel,
-                navController = navController
-            )
-        }
-
-        composable(route = Screens.Broco.name) {
-            AIAssisstantScreen(navController)
-        }
-    }
-}

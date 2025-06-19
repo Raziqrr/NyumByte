@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-07 00:01:32
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-19 15:31:07
+ * @LastEditTime: 2025-06-08 01:41:05
  * @FilePath: app/src/main/java/com/example/nyumbyte/data/network/firebase/FirestoreRepository.kt
  * @Description: Centralized Firestore functions for user data
  */
@@ -32,6 +32,7 @@ object FirestoreRepository {
             return if (snapshot.exists()) {
                 Log.w(TAG, "createNewUserIfNotExists: User with UID '$uid' already exists.")
                 false
+
             } else {
                 docRef.set(data).await()
                 Log.d(TAG, "createNewUserIfNotExists: New user '$uid' created successfully.")
@@ -43,7 +44,7 @@ object FirestoreRepository {
         }
     }
 
-    suspend fun saveUserData(uid: String, data: Map<String, Any?>): Boolean {
+    suspend fun saveUserData(uid: String, data: Map<String, Any>): Boolean {
         return try {
             db.collection(USERS_COLLECTION)
                 .document(uid)
@@ -79,7 +80,6 @@ object FirestoreRepository {
                 .await()
             if (snapshot.exists()) {
                 Log.d(TAG, "getUserData: Successfully fetched user data for '$uid'.")
-                Log.d(TAG, "getUserData: Successfully fetched user data '${snapshot.data}'.")
                 snapshot.data
             } else {
                 Log.w(TAG, "getUserData: No user found for UID '$uid'.")
