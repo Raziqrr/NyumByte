@@ -99,6 +99,15 @@ dependencies {
     // navigation
     implementation(libs.androidx.navigation.compose)
 
+    // camera
+    implementation(libs.camera2)
+    implementation(libs.cameraLifecycle)
+    implementation(libs.cameraView)
+    implementation(libs.guava)
+    implementation(libs.kotlinx.coroutines.guava)
+
+
+
     // viewmodel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx.v270)
