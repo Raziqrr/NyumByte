@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-06 01:50:49
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-20 08:21:29
+ * @LastEditTime: 2025-06-20 08:54:17
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/navigation/NBNavHost.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -38,6 +38,8 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.unit.IntOffset
+import com.example.nyumbyte.ui.screens.profile.ProfileScreen
+import com.example.nyumbyte.ui.screens.profile.ProfileViewModel
 import com.example.nyumbyte.ui.screens.rewards.RewardViewModel
 import com.example.nyumbyte.ui.screens.rewards.RewardsPage
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -53,7 +55,9 @@ fun NBNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel,
-    rewardViewModel: RewardViewModel
+    rewardViewModel: RewardViewModel? = null,
+    profileViewModel: ProfileViewModel,
+    uid: String? = null
 ) {
     // Define a reusable animation spec for slide transitions
     val slideAnimationSpec = tween<IntOffset>(
@@ -130,7 +134,7 @@ fun NBNavHost(
                 dietPlanViewModel,
                 authViewModel,
                 chatViewModel,
-                rewardViewModel
+                profileViewModel
             )
         }
 
@@ -178,12 +182,24 @@ fun NBNavHost(
         composable(route = Screens.Broco.name) {
             AIAssisstantScreen(navController)
         }
-        
-        composable(route = Screens.RewardsPage.name){
-            RewardsPage(
-                onBack = {},
-                rewardViewModel = rewardViewModel
-            )
+
+        composable(route = Screens.RewardsPage.name) {
+            rewardViewModel?.let {
+                RewardsPage(
+                    onBack = { navController.popBackStack() },
+                    rewardViewModel = it
+                )
+            }
         }
+        
+        composable(route = Screens.Profile.name){
+            uid?.let {
+                ProfileScreen(
+                    uid = uid,
+                    viewModel = profileViewModel
+                )
+            }
+        }
+
     }
 }
