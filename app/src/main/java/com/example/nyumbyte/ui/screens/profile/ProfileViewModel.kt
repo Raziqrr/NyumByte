@@ -10,6 +10,7 @@ import com.example.nyumbyte.data.model.Achievement
 import com.example.nyumbyte.data.model.Challenge
 import com.example.nyumbyte.data.model.DailyChallenge
 import com.example.nyumbyte.data.repository.AchievementRepository
+import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -83,6 +84,24 @@ class ProfileViewModel : ViewModel() {
         viewModelScope.launch {
             FirestoreRepository.updateUserField(uid, "streakCount", newStreak)
             FirestoreRepository.updateUserField(uid, "lastCompletedDate", today)
+        }
+    }
+
+    fun resetStreak(uid: String) {
+        val oldDate = getYesterdayDate() // or you can use getYesterdayDate() if you want
+        _streakCount.value = 1
+        _lastCompletedDate.value = oldDate
+
+        viewModelScope.launch {
+            val db = FirebaseFirestore.getInstance()
+            db.collection("users")
+                .document(uid)
+                .update(
+                    mapOf(
+                        "streakCount" to 1,
+                        "lastCompletedDate" to oldDate
+                    )
+                )
         }
     }
 

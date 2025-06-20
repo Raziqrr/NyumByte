@@ -84,6 +84,7 @@ fun ProfileScreen(
     uid: String,
     viewModel: ProfileViewModel = viewModel()
 ) {
+
     val dailyChallenges by viewModel.dailyChallenges.collectAsState()
     val today = remember {
         SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -103,6 +104,9 @@ fun ProfileScreen(
 
     val scrollState = rememberScrollState()
     // Let's say each carrot eaten = 14 points (5 carrots max = 70 points)
+    LaunchedEffect(true) {
+        viewModel.resetStreak(uid)
+    }
 
 
     LaunchedEffect(uid) {
@@ -176,8 +180,8 @@ fun ProfileScreen(
                 )
             }
 
-            Text(text = "Level $level")
-            Text(text = "xp $xp")
+            //Text(text = "Level $level")
+            //Text(text = "xp $xp")
 
 
             // Pass userName here!
