@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-09 14:43:17
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-20 08:55:26
+ * @LastEditTime: 2025-06-20 09:34:14
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/home/Home.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -55,6 +55,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobileproject.screens.ai_assisstant.ChatViewModel
 import com.example.nyumbyte.data.network.firebase.UserUiState
 import com.example.nyumbyte.ui.navigation.NBNavHost
+import com.example.nyumbyte.ui.screens.challenges.ChallengeViewModel
 import com.example.nyumbyte.ui.screens.profile.ProfileViewModel
 import com.example.nyumbyte.ui.screens.rewards.RewardViewModel
 import com.example.nyumbyte.ui.screens.rewards.RewardViewModelFactory
@@ -68,7 +69,8 @@ fun Home(
     dietPlanViewModel: DietPlanViewModel,
     authViewModel: AuthViewModel,
     chatViewModel: ChatViewModel,
-    profileViewModel: ProfileViewModel
+    profileViewModel: ProfileViewModel,
+    challengeViewModel: ChallengeViewModel
 ) {
     val homeNavController = rememberNavController()
 
@@ -86,7 +88,6 @@ fun Home(
         NavBarItem("Scan", Icons.Filled.CameraAlt, "Scan"),
         NavBarItem(Screens.RewardsPage.name, Icons.Default.Flag, "Rewards"),
         NavBarItem(Screens.Profile.name, Icons.Default.Person, "Profile"),
-        NavBarItem(Screens.ChallengePage.name, Icons.Default.Flag, "Challenges")
     )//Dummy list
     val currentDestination = homeNavController.currentBackStackEntryAsState().value?.destination?.route
 
@@ -119,7 +120,8 @@ fun Home(
             startDestination = Screens.Home.name,
             rewardViewModel = rewardViewModel,
             profileViewModel = profileViewModel,
-            uid = uid
+            uid = uid,
+            challengeViewModel = challengeViewModel
 
         )
     }

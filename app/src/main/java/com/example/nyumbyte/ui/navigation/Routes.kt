@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-06 01:05:24
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-20 08:50:20
+ * @LastEditTime: 2025-06-20 09:55:56
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/navigation/Routes.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -27,4 +27,11 @@ enum class Screens(@StringRes val title: Int){
     SocialPage(title = (R.string.social)),
     RewardsPage(title = (R.string.rewards_page)),
     Profile(title = (R.string.profile)),
+    Health(title = (R.string.health)),
+    ChallengeDetail(title = (R.string.challenge_detail));
+
+    companion object {
+        const val ChallengeDetailBase = "challenge_detail"
+        fun challengeDetailWithArgs(challengeId: String) = "$ChallengeDetailBase/$challengeId"
+    }
 }

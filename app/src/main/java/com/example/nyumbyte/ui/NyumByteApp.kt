@@ -30,6 +30,7 @@ import com.example.nyumbyte.data.network.firebase.FirestoreRepository
 import com.example.nyumbyte.data.network.firebase.UserViewModel
 import com.example.nyumbyte.ui.navigation.NBNavHost
 import com.example.nyumbyte.ui.navigation.Screens
+import com.example.nyumbyte.ui.screens.challenges.ChallengeViewModel
 import com.example.nyumbyte.ui.screens.dietplanner.DietPlanViewModel
 import com.example.nyumbyte.ui.screens.profile.ProfileViewModel
 import com.example.nyumbyte.ui.screens.rewards.RewardViewModel
@@ -61,6 +62,7 @@ fun NyumByteApp(
         val dietPlanViewModel: DietPlanViewModel = viewModel()
         val chatViewModel: ChatViewModel = viewModel()
         val profileViewModel: ProfileViewModel = viewModel()
+        val challengeViewModel: ChallengeViewModel = viewModel()
 
 
         NBNavHost(
@@ -71,7 +73,8 @@ fun NyumByteApp(
             chatViewModel = chatViewModel,
             startDestination = Screens.SplashScreen.name,
             rewardViewModel = null,
-            profileViewModel = profileViewModel
+            profileViewModel = profileViewModel,
+            challengeViewModel = challengeViewModel
         )
     }
 }

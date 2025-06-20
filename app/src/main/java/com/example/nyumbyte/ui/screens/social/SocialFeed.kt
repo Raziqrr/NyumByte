@@ -1,5 +1,6 @@
 package com.example.nyumbyte.ui.screens.social.components
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -21,7 +22,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.nyumbyte.ui.common.CustomTopAppBar
+import com.example.nyumbyte.ui.common.StoryRing
 import com.example.nyumbyte.ui.screens.social.Story
 import com.example.nyumbyte.ui.screens.social.FriendProfile
 
@@ -35,7 +39,8 @@ import kotlinx.coroutines.tasks.await
 import java.util.*
 
 @Composable
-fun SocialFeed(userId: String) {
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+fun SocialFeed(userId: String, navController: NavController) {
     val db = Firebase.firestore
     val storage = FirebaseStorage.getInstance()
     val scope = rememberCoroutineScope()
@@ -130,84 +135,94 @@ fun SocialFeed(userId: String) {
         }
     }
 
-    Column(Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Social", style = MaterialTheme.typography.headlineSmall)
-        Spacer(Modifier.height(16.dp))
+    Scaffold (
+        topBar = {
+            CustomTopAppBar(
+                title = "Social",
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+    ){innerpadding->
 
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            item {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary)
-                            .clickable { launcher.launch("image/*") },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Default.Add, contentDescription = "Add", tint = Color.White)
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp)) {
+            Spacer(Modifier.height(innerpadding.calculateTopPadding()))
+
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                item {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(
+                            modifier = Modifier
+                                .size(64.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary)
+                                .clickable { launcher.launch("image/*") },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = "Add", tint = Color.White)
+                        }
+                        Text("Your Story", fontSize = 12.sp)
                     }
-                    Text("Your Story", fontSize = 12.sp)
                 }
-            }
-            items(stories.distinctBy { it.userId }) { story ->
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    AsyncImage(
-                        model = story.imageUrl,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .clickable {
+                items(stories.distinctBy { it.userId }) { story ->
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        StoryRing(
+                            imageUrl = story.imageUrl,
+                            onClick = {
                                 val userStories = stories.filter { it.userId == story.userId }
                                 showViewer = userStories
                                 currentStoryIndex = 0
                             }
-                    )
-                    Text(story.userName, fontSize = 12.sp)
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(story.userName, fontSize = 12.sp)
+                    }
                 }
             }
-        }
 
-        Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp))
 
-        Spacer(Modifier.height(16.dp))
-        Text(
-            text = "➕ Add Friend",
-            style = MaterialTheme.typography.titleMedium.copy(
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = "➕ Add Friend",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
             )
-        )
 
-        Spacer(Modifier.height(8.dp))
-        OutlinedTextField(
-            value = friendIdInput,
-            onValueChange = { friendIdInput = it },
-            label = { Text("Enter friend ID or username") },
-            modifier = Modifier.fillMaxWidth()
-        )
+            Spacer(Modifier.height(8.dp))
+            OutlinedTextField(
+                value = friendIdInput,
+                onValueChange = { friendIdInput = it },
+                label = { Text("Enter friend ID or username") },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        Spacer(Modifier.height(8.dp))
-        Button(
-            onClick = { addFriend() },
-            modifier = Modifier.align(Alignment.End),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
-        ) {
-            Text("Add Friend", color = MaterialTheme.colorScheme.onSecondary)
+            Spacer(Modifier.height(8.dp))
+            Button(
+                onClick = { addFriend() },
+                modifier = Modifier.align(Alignment.End),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+            ) {
+                Text("Add Friend", color = MaterialTheme.colorScheme.onSecondary)
+            }
+
+
+            errorMsg?.let {
+                Text(it, color = Color.Red)
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            FriendCard(
+                friendList = friendList,
+                onRemoveRequest = { showRemoveConfirm = it }
+            )
+
         }
-
-
-        errorMsg?.let {
-            Text(it, color = Color.Red)
-        }
-
-        Spacer(Modifier.height(12.dp))
-
-        FriendCard(
-            friendList = friendList,
-            onRemoveRequest = { showRemoveConfirm = it }
-        )
     }
 
     if (showViewer != null) {

@@ -1,5 +1,6 @@
 package com.example.nyumbyte.ui.screens.health
 
+import PrimaryButton
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,6 +16,9 @@ import android.util.Log
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.nyumbyte.ui.common.CustomTopAppBar
+import com.example.nyumbyte.ui.common.SecondaryButton
 import com.example.nyumbyte.util.getCurrentWeekId
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
@@ -26,7 +30,8 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 @Composable
 fun HealthAnalyticsScreen(
     uid: String,
-    viewModel: HealthViewModel = viewModel()
+    viewModel: HealthViewModel = viewModel(),
+    navController: NavController
 ) {
     val aiAnalysis by viewModel.aiAnalysis
 
@@ -61,6 +66,7 @@ fun HealthAnalyticsScreen(
             .fillMaxSize()
             .verticalScroll(rememberScrollState()) // ✅ This makes everything scrollable
     ) {
+        Spacer(Modifier.height(100.dp))
         Text("Health Analytics", style = MaterialTheme.typography.headlineMedium)
         Spacer(Modifier.height(16.dp))
 
@@ -104,19 +110,23 @@ fun HealthAnalyticsScreen(
             }
             Spacer(Modifier.height(12.dp))
         }
-
+        Spacer(Modifier.height(30.dp))
         // ✅ Now this will be visible
-        Button(onClick = { showInputDialog = true }) {
-            Text("+ Add Daily Intake")
-        }
+        SecondaryButton(
+            onClick = { showInputDialog = true },
+            text = "+ Add Daily Intake",
+        )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(20.dp))
 
-        Button(onClick = {
-            viewModel.saveHealthData(uid, week)
-        }) {
-            Text("Save Health Data")
-        }
+        PrimaryButton(
+            onClick = {
+                viewModel.saveHealthData(uid, week)
+            },
+            text = "Save Health Data",
+        )
+
+        Spacer(Modifier.height(30.dp))
     }
 
     if (showDialog) {
@@ -178,6 +188,10 @@ fun HealthAnalyticsScreen(
             }
         )
     }
+    CustomTopAppBar(
+        title = "My Diet Plan",
+        onBackClick = { navController.popBackStack() }
+    )
 }
 
 @Composable
