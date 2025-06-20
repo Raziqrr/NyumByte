@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import com.example.nyumbyte.ui.common.CustomTopAppBar
+import com.example.nyumbyte.ui.navigation.Screens
 import java.io.ByteArrayOutputStream
 import java.io.File
 
@@ -103,7 +105,7 @@ fun ScanScreen(navController: NavController) {
                                         detectFood(compressedBitmap, context) { label ->
                                             isCapturing = false
                                             // ✅ Navigate with label in route
-                                            navController.navigate("result/${label}")
+                                            navController.navigate(Screens.scanResultWithArgs(label))
                                         }
                                     }
 
@@ -129,7 +131,10 @@ fun ScanScreen(navController: NavController) {
             }
         }
     }
-
+    CustomTopAppBar(
+        title = "Scan Food",
+        onBackClick = { navController.popBackStack() }
+    )
     // Camera Init
     LaunchedEffect(Unit) {
         val cameraProvider = cameraProviderFuture.get()

@@ -5,9 +5,13 @@ import PrimaryButton
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -68,12 +72,19 @@ fun NBSplashScreen(
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
+                Text(
+                    "NyumByte",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(40.dp))
                 PrimaryButton(
                     text = "Register a new account",
                     onClick = { navController.navigate(Screens.Register.name) },
                     icon = null,
                     enabled = true
                 )
+                Spacer(modifier = Modifier.height(20.dp))
                 SecondaryButton(
                     text = "Login with an existing account",
                     onClick = { navController.navigate(Screens.Login.name) },

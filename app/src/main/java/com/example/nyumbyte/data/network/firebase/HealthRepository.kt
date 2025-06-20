@@ -12,6 +12,28 @@ object HealthRepository {
     private const val HEALTH_SUBCOLLECTION = "health_data"
     private val db = FirebaseFirestore.getInstance()
 
+
+    suspend fun saveUserHealthInfo(uid: String, weight: Double, height: Double, allergies: List<String>): Boolean {
+        return try {
+            db.collection("Users")
+                .document(uid)
+                .set(
+                    mapOf(
+                        "weight" to weight,
+                        "height" to height,
+                        "allergies" to allergies
+                    ),
+                    SetOptions.merge()
+                )
+                .await()
+            Log.d("HealthRepository", "Health info saved for user $uid")
+            true
+        } catch (e: Exception) {
+            Log.e("HealthRepository", "Failed to save health info", e)
+            false
+            }
+        }
+
     suspend fun saveHealthData(uid: String, week: String, health: Health): Boolean {
         return try {
             db.collection(USERS_COLLECTION)

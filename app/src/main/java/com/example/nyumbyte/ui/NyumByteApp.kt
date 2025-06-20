@@ -32,6 +32,7 @@ import com.example.nyumbyte.ui.navigation.NBNavHost
 import com.example.nyumbyte.ui.navigation.Screens
 import com.example.nyumbyte.ui.screens.challenges.ChallengeViewModel
 import com.example.nyumbyte.ui.screens.dietplanner.DietPlanViewModel
+import com.example.nyumbyte.ui.screens.foodscanner.FoodScannerViewModel
 import com.example.nyumbyte.ui.screens.profile.ProfileViewModel
 import com.example.nyumbyte.ui.screens.rewards.RewardViewModel
 
@@ -63,6 +64,7 @@ fun NyumByteApp(
         val chatViewModel: ChatViewModel = viewModel()
         val profileViewModel: ProfileViewModel = viewModel()
         val challengeViewModel: ChallengeViewModel = viewModel()
+        val foodScannerViewModel: FoodScannerViewModel = viewModel()
 
 
         NBNavHost(
@@ -74,7 +76,8 @@ fun NyumByteApp(
             startDestination = Screens.SplashScreen.name,
             rewardViewModel = null,
             profileViewModel = profileViewModel,
-            challengeViewModel = challengeViewModel
+            challengeViewModel = challengeViewModel,
+            foodScannerViewModel = foodScannerViewModel
         )
     }
 }

@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-06 01:05:24
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-20 10:27:05
+ * @LastEditTime: 2025-06-20 10:34:54
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/navigation/Routes.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -34,6 +34,10 @@ enum class Screens(@StringRes val title: Int){
 
     companion object {
         const val ChallengeDetailBase = "challenge_detail"
+        const val ScanResultBase = "scan_result"
+
         fun challengeDetailWithArgs(challengeId: String) = "$ChallengeDetailBase/$challengeId"
+        fun scanResultWithArgs(label: String) = "$ScanResultBase/$label"
     }
+
 }

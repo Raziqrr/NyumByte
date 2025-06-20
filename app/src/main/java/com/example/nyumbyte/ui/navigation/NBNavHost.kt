@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-06 01:50:49
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-20 10:27:46
+ * @LastEditTime: 2025-06-20 10:50:34
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/navigation/NBNavHost.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -44,6 +44,9 @@ import com.example.nyumbyte.ui.screens.challenges.Challenge
 import com.example.nyumbyte.ui.screens.challenges.ChallengeDetailPage
 import com.example.nyumbyte.ui.screens.challenges.ChallengePage
 import com.example.nyumbyte.ui.screens.challenges.ChallengeViewModel
+import com.example.nyumbyte.ui.screens.foodscanner.FoodScannerViewModel
+import com.example.nyumbyte.ui.screens.foodscanner.ResultScreen
+import com.example.nyumbyte.ui.screens.foodscanner.ScanScreen
 import com.example.nyumbyte.ui.screens.health.HealthAnalyticsScreen
 import com.example.nyumbyte.ui.screens.profile.ProfileScreen
 import com.example.nyumbyte.ui.screens.profile.ProfileViewModel
@@ -66,7 +69,8 @@ fun NBNavHost(
     rewardViewModel: RewardViewModel? = null,
     profileViewModel: ProfileViewModel,
     uid: String? = null,
-    challengeViewModel: ChallengeViewModel
+    challengeViewModel: ChallengeViewModel,
+    foodScannerViewModel: FoodScannerViewModel
 ) {
     // Define a reusable animation spec for slide transitions
     val slideAnimationSpec = tween<IntOffset>(
@@ -144,7 +148,8 @@ fun NBNavHost(
                 authViewModel,
                 chatViewModel,
                 profileViewModel,
-                challengeViewModel
+                challengeViewModel,
+                foodScannerViewModel
             )
         }
 
@@ -245,7 +250,27 @@ fun NBNavHost(
             )}
         }
         
-        
+        composable(route = Screens.Scan.name){
+            ScanScreen(
+                navController = navController
+            )
+        }
+
+        composable(
+            route = "${Screens.ScanResultBase}/{label}",
+            arguments = listOf(navArgument("label") { type = NavType.StringType })
+        ) {
+            val label = it.arguments?.getString("label") ?: ""
+            ResultScreen(
+                label = label,
+                navController = navController,
+                viewModel = foodScannerViewModel,
+                userViewModel = userViewModel
+            )
+        }
+
+
+
         composable(route = Screens.ChallengePage.name){
             ChallengePage(
                 onBack = { navController.popBackStack() },

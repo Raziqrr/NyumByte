@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-09 14:43:17
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-20 09:34:14
+ * @LastEditTime: 2025-06-20 10:34:20
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/home/Home.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -56,6 +56,7 @@ import com.example.mobileproject.screens.ai_assisstant.ChatViewModel
 import com.example.nyumbyte.data.network.firebase.UserUiState
 import com.example.nyumbyte.ui.navigation.NBNavHost
 import com.example.nyumbyte.ui.screens.challenges.ChallengeViewModel
+import com.example.nyumbyte.ui.screens.foodscanner.FoodScannerViewModel
 import com.example.nyumbyte.ui.screens.profile.ProfileViewModel
 import com.example.nyumbyte.ui.screens.rewards.RewardViewModel
 import com.example.nyumbyte.ui.screens.rewards.RewardViewModelFactory
@@ -70,7 +71,8 @@ fun Home(
     authViewModel: AuthViewModel,
     chatViewModel: ChatViewModel,
     profileViewModel: ProfileViewModel,
-    challengeViewModel: ChallengeViewModel
+    challengeViewModel: ChallengeViewModel,
+    foodScannerViewModel: FoodScannerViewModel
 ) {
     val homeNavController = rememberNavController()
 
@@ -85,7 +87,7 @@ fun Home(
     val dummyItems = listOf(
         NavBarItem(Screens.Home.name, Icons.Default.Home, "Home"),
         NavBarItem(Screens.Broco.name, Icons.Filled.ChatBubble, "Broco"),
-        NavBarItem("Scan", Icons.Filled.CameraAlt, "Scan"),
+        NavBarItem(Screens.Scan.name, Icons.Filled.CameraAlt, "Scan"),
         NavBarItem(Screens.RewardsPage.name, Icons.Default.Flag, "Rewards"),
         NavBarItem(Screens.Profile.name, Icons.Default.Person, "Profile"),
     )//Dummy list
@@ -121,7 +123,8 @@ fun Home(
             rewardViewModel = rewardViewModel,
             profileViewModel = profileViewModel,
             uid = uid,
-            challengeViewModel = challengeViewModel
+            challengeViewModel = challengeViewModel,
+            foodScannerViewModel = foodScannerViewModel
 
         )
     }

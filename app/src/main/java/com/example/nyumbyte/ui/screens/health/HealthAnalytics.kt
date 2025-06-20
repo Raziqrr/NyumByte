@@ -84,12 +84,7 @@ fun HealthAnalyticsScreen(
             waterMap = mapToShortDays(waterMap)
         )
         Spacer(Modifier.height(16.dp))
-        Button(onClick = {
-            val prompt = formatHealthPrompt(calorieMap, waterMap)
-            viewModel.generateAIAnalysis(prompt)
-        }) {
-            Text("Analyze My Health Data")
-        }
+
         Spacer(Modifier.height(16.dp))
         aiAnalysis?.let {
             Text("AI Analysis:", style = MaterialTheme.typography.titleMedium)
@@ -137,7 +132,9 @@ fun HealthAnalyticsScreen(
             onWeightChange = { viewModel.updateWeight(it) },     // ✅ update via ViewModel
             onHeightChange = { viewModel.updateHeight(it) },
             onAllergyChange = { viewModel.updateAllergies(it) },
-            onDismiss = { showDialog = false }
+            onDismiss = { showDialog = false
+                viewModel.saveUserHealthInfo(uid) // ✅ SAVE TO FIRESTORE ON CLOSE
+            }
         )
     }
 

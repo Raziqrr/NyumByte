@@ -16,7 +16,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.nyumbyte.data.model.Health
+import com.example.nyumbyte.data.model.User
+import com.example.nyumbyte.data.network.firebase.UserUiState
+import com.example.nyumbyte.data.network.firebase.UserViewModel
 import com.example.nyumbyte.data.repository.HealthRepository
+import com.example.nyumbyte.ui.common.CustomTopAppBar
 import com.example.nyumbyte.ui.navigation.Screens
 import com.example.nyumbyte.util.getCurrentWeekId
 import com.google.firebase.auth.FirebaseAuth
@@ -29,12 +33,23 @@ import java.util.*
 fun ResultScreen(
     label: String,
     navController: NavController,
-    viewModel: FoodScannerViewModel = viewModel()
+    viewModel: FoodScannerViewModel = viewModel(),
+    userViewModel: UserViewModel
 ) {
     val scope = rememberCoroutineScope()
     var suggestion by remember { mutableStateOf("Analyzing your food...") }
     var calorieText by remember { mutableStateOf("Estimating...") }
+    val userState by userViewModel.userUiState.collectAsState()
+    var cachedUser by remember { mutableStateOf<User?>(null) }
 
+    val user = when (userState) {
+        is UserUiState.Success -> {
+            val currentUser = (userState as UserUiState.Success).user
+            cachedUser = currentUser
+            currentUser
+        }
+        else -> cachedUser // fallback to last known user
+    }
     LaunchedEffect(label) {
         val result = fetchGeminiSuggestion(label)
         suggestion = result.suggestion
@@ -53,17 +68,9 @@ fun ResultScreen(
     ) {
         Spacer(modifier = Modifier.height(32.dp))
 
-        Text(
-            text = "Scan Results",
-            style = MaterialTheme.typography.headlineLarge.copy(
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
-        )
 
-        Spacer(modifier = Modifier.height(32.dp))
+
+        Spacer(modifier = Modifier.height(100.dp))
 
         Card(
             modifier = Modifier
@@ -115,7 +122,7 @@ fun ResultScreen(
             shape = RoundedCornerShape(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Nutritional Insights", style = MaterialTheme.typography.labelMedium)
+                Text("Healthier Alternatives", style = MaterialTheme.typography.labelMedium)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(suggestion, style = MaterialTheme.typography.bodyLarge)
             }
@@ -130,7 +137,10 @@ fun ResultScreen(
             Button(
                 onClick = {
                     scope.launch {
-                        sendToCalorieGoal(viewModel.calorie.value)
+
+                        if (user != null) {
+                            sendToCalorieGoal(viewModel.calorie.value, userViewModel, user)
+                        }
                     }
                 },
                 modifier = Modifier
@@ -166,9 +176,16 @@ fun ResultScreen(
             }
         }
     }
+    CustomTopAppBar(
+        title = "Scan Result",
+        onBackClick = { navController.popBackStack() }
+    )
+
+
+
 }
 
-suspend fun sendToCalorieGoal(calorieAmount: Int) {
+suspend fun sendToCalorieGoal(calorieAmount: Int, userViewModel: UserViewModel, user: User) {
     val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
     val week = getCurrentWeekId()
     val today = LocalDate.now().dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
@@ -183,7 +200,9 @@ suspend fun sendToCalorieGoal(calorieAmount: Int) {
             calorieIntake = updatedCalorieMap,
             waterIntake = existing?.waterIntake ?: emptyMap()
         )
-
+        val updatedCalorie = (user.calorieToday ?: 0) + calorieAmount
+        val updatedUser = user.copy(calorieToday = updatedCalorie)
+        userViewModel.saveUser(updatedUser)
         HealthRepository.saveHealthData(uid, week, newHealth)
         Log.d("CalorieGoal", "Saved $calorieAmount kcal to $today")
     } catch (e: Exception) {

@@ -29,6 +29,17 @@ class HealthViewModel : ViewModel() {
     private val _waterIntake = MutableStateFlow<Map<String, Int>>(emptyMap())
     val waterIntake: StateFlow<Map<String, Int>> = _waterIntake
 
+    fun saveUserHealthInfo(uid: String) {
+        viewModelScope.launch {
+            HealthRepository.saveUserHealthInfo(
+                uid = uid,
+                weight = _weight.value,
+                height = _height.value,
+                allergies = _allergies.value
+            )
+        }
+    }
+
 
     fun generateAIAnalysis(prompt: String) {
         viewModelScope.launch {
