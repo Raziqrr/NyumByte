@@ -23,6 +23,9 @@ class HealthViewModel : ViewModel() {
     private val _height = MutableStateFlow(0.0)
     val height: StateFlow<Double> = _height
 
+    private val _bmi = MutableStateFlow(0.0)
+    val bmi: StateFlow<Double> = _bmi
+
     private val _calorieIntake = MutableStateFlow<Map<String, Int>>(emptyMap())
     val calorieIntake: StateFlow<Map<String, Int>> = _calorieIntake
 
@@ -94,4 +97,21 @@ class HealthViewModel : ViewModel() {
     fun updateAllergies(newAllergies: List<String>) {
         _allergies.value = newAllergies
     }
+
+    fun calculateAndSaveBMI(uid: String) {
+        val h = _height.value
+        val w = _weight.value
+        if (h > 0 && w > 0) {
+            val heightInMeters = h / 100
+            val calculatedBmi = w / (heightInMeters * heightInMeters)
+            _bmi.value = calculatedBmi
+
+            // Save to Firestore
+            viewModelScope.launch {
+                HealthRepository.saveUserBMI(uid, calculatedBmi)
+            }
+        }
+    }
+
+
 }

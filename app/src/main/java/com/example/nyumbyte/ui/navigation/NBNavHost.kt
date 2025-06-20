@@ -38,6 +38,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.unit.IntOffset
+import com.example.nyumbyte.ui.screens.health.HealthAnalyticsScreen
 import com.example.nyumbyte.ui.screens.profile.ProfileScreen
 import com.example.nyumbyte.ui.screens.profile.ProfileViewModel
 import com.example.nyumbyte.ui.screens.rewards.RewardViewModel
@@ -196,8 +197,15 @@ fun NBNavHost(
             uid?.let {
                 ProfileScreen(
                     uid = uid,
-                    viewModel = profileViewModel
+                    viewModel = profileViewModel,
+                    navController = navController
                 )
+            }
+        }
+
+        composable(route = Screens.HealthAnalytics.name) {
+            uid?.let {
+                HealthAnalyticsScreen(uid = it)
             }
         }
 

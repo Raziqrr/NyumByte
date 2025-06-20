@@ -121,6 +121,7 @@ fun Homepage(
                 }
             }
         }
+
         Spacer(
             Modifier.height(10.dp)
         )
@@ -155,6 +156,32 @@ fun Homepage(
             Column { 
                 Text("Your rewards")
                 Card {  }
+            }
+        }
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    navController.navigate(Screens.HealthAnalytics.name)
+                },
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Go to Health Analytics",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "Check your calories, water, and more.",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
     }

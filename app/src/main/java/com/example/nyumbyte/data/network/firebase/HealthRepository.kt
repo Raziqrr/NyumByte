@@ -69,4 +69,18 @@ object HealthRepository {
         }
     }
 
+    suspend fun saveUserBMI(uid: String, bmi: Double): Boolean {
+        return try {
+            db.collection(USERS_COLLECTION)
+                .document(uid)
+                .set(mapOf("bmi" to bmi), SetOptions.merge())
+                .await()
+            Log.d("HealthRepository", "BMI saved for user $uid")
+            true
+        } catch (e: Exception) {
+            Log.e("HealthRepository", "Failed to save BMI", e)
+            false
+        }
+    }
+
 }

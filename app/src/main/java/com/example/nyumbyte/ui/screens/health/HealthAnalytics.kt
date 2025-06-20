@@ -29,6 +29,7 @@ fun HealthAnalyticsScreen(
     viewModel: HealthViewModel = viewModel()
 ) {
     val aiAnalysis by viewModel.aiAnalysis
+    val bmi by viewModel.bmi.collectAsState()
 
     val calorieMap by viewModel.calorieIntake.collectAsState()
     val waterMap by viewModel.waterIntake.collectAsState()
@@ -65,8 +66,12 @@ fun HealthAnalyticsScreen(
         Spacer(Modifier.height(16.dp))
 
         DisplayHealthInfo(weight, height, allergies)
-        Spacer(Modifier.height(16.dp))
+        Text("BMI: ${"%.2f".format(bmi)}", style = MaterialTheme.typography.bodyLarge)
 
+        Spacer(Modifier.height(16.dp))
+        Button(onClick = { viewModel.calculateAndSaveBMI(uid) }) {
+            Text("Calculate BMI")
+        }
         Button(onClick = { showDialog = true }) {
             Text("Edit Health Info")
         }

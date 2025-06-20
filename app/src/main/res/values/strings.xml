@@ -19,4 +19,6 @@
     <string name="new_diet_plan">New Diet Plan</string>
     <string name="broco">Broco</string>
     <string name="profile">Profile</string>
+    <string name="health_analytics">Health Analytics</string>
+
 </resources>

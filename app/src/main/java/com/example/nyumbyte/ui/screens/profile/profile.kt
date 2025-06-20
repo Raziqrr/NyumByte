@@ -24,6 +24,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.ChatBubble
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -31,6 +37,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
@@ -58,17 +66,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.nyumbyte.R
 import com.example.nyumbyte.data.model.Achievement
 import com.example.nyumbyte.data.model.Challenge
 import com.example.nyumbyte.data.model.DailyChallenge
+import com.example.nyumbyte.data.model.NavBarItem
+import com.example.nyumbyte.ui.navigation.Screens
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @Composable
 fun ProfileScreen(
-
+    navController: NavHostController,
     uid: String,
     viewModel: ProfileViewModel = viewModel()
 ) {
@@ -103,7 +115,17 @@ fun ProfileScreen(
 
 
     val achievements by viewModel.achievements.collectAsState()
-
+    val dummyItems = listOf(
+        NavBarItem(Screens.Home.name, Icons.Default.Home, "Home"),
+        NavBarItem(Screens.Broco.name, Icons.Default.ChatBubble, "Broco"),
+        NavBarItem("Scan", Icons.Default.CameraAlt, "Scan"),
+        NavBarItem("Rewards", icon = Icons.Default.Flag, "Rewards"),
+        NavBarItem("profile", Icons.Default.Person, "Profile"),
+        NavBarItem(Screens.ChallengePage.name, Icons.Default.Flag, "Challenges")
+    )
+    val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
+    val showBottomBar = true
+    val bottomPadding = if (showBottomBar) 80.dp else 0.dp
 
     val name by viewModel.userName.collectAsState()
     val loading by viewModel.loading.collectAsState()
