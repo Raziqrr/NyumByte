@@ -1,9 +1,11 @@
 package com.example.nyumbyte.ui.screens.foodscanner
 
-
+import android.Manifest
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -17,12 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import com.example.nyumbyte.ui.screens.foodscanner.detectFood
+import java.io.ByteArrayOutputStream
 import java.io.File
 
 @Composable
@@ -39,31 +40,45 @@ fun ScanScreen(navController: NavController) {
     var imageCapture: ImageCapture? by remember { mutableStateOf(null) }
     var isCapturing by remember { mutableStateOf(false) }
 
+    // Permission
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (!isGranted) {
+            Toast.makeText(context, "Camera permission is required", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        val permissionGranted = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.CAMERA
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+        if (!permissionGranted) {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    // UI
     Box(modifier = Modifier.fillMaxSize()) {
-        // Camera Preview
         AndroidView(
             factory = { previewView },
             modifier = Modifier.fillMaxSize()
         )
 
-        // Optional semi-transparent overlay
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.2f))
         )
 
-        // Capture Button or Loading Spinner
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(32.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
-            AnimatedContent(
-                targetState = isCapturing,
-                label = "CaptureState"
-            ) { capturing ->
+            AnimatedContent(targetState = isCapturing, label = "CaptureAnimation") { capturing ->
                 if (capturing) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(48.dp),
@@ -76,37 +91,25 @@ fun ScanScreen(navController: NavController) {
                             isCapturing = true
                             val file = File(context.cacheDir, "image.jpg")
                             val outputOptions = ImageCapture.OutputFileOptions.Builder(file).build()
+
                             imageCapture?.takePicture(
                                 outputOptions,
                                 ContextCompat.getMainExecutor(context),
                                 object : ImageCapture.OnImageSavedCallback {
                                     override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                                        try {
-                                            // Decode original image
-                                            val originalBitmap = BitmapFactory.decodeFile(file.absolutePath)
+                                        val rawBitmap = BitmapFactory.decodeFile(file.absolutePath)
+                                        val compressedBitmap = compressBitmap(rawBitmap, 70)
 
-                                            // Compress and overwrite original file
-                                            file.outputStream().use { outStream ->
-                                                originalBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outStream)
-                                            }
-
-                                            // Decode compressed image
-                                            val compressedBitmap = BitmapFactory.decodeFile(file.absolutePath)
-
-                                            // Send to detection
-                                            detectFood(compressedBitmap, context) { label ->
-                                                isCapturing = false
-                                                navController.navigate("result/$label")
-                                            }
-                                        } catch (e: Exception) {
-                                            Toast.makeText(context, "Image processing failed", Toast.LENGTH_SHORT).show()
+                                        detectFood(compressedBitmap, context) { label ->
                                             isCapturing = false
+                                            // ✅ Navigate with label in route
+                                            navController.navigate("result/${label}")
                                         }
                                     }
 
                                     override fun onError(exception: ImageCaptureException) {
-                                        Toast.makeText(context, "Capture failed", Toast.LENGTH_SHORT).show()
                                         isCapturing = false
+                                        Toast.makeText(context, "Capture failed", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             )
@@ -127,14 +130,17 @@ fun ScanScreen(navController: NavController) {
         }
     }
 
-    // Camera Initialization
+    // Camera Init
     LaunchedEffect(Unit) {
         val cameraProvider = cameraProviderFuture.get()
         val preview = Preview.Builder().build().also {
             it.setSurfaceProvider(previewView.surfaceProvider)
         }
 
-        imageCapture = ImageCapture.Builder().build()
+        imageCapture = ImageCapture.Builder()
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+            .build()
+
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
         try {
@@ -145,8 +151,15 @@ fun ScanScreen(navController: NavController) {
                 preview,
                 imageCapture!!
             )
-        } catch (exc: Exception) {
+        } catch (e: Exception) {
             Toast.makeText(context, "Camera init failed", Toast.LENGTH_SHORT).show()
         }
     }
+}
+
+private fun compressBitmap(bitmap: Bitmap, quality: Int): Bitmap {
+    val stream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream)
+    val byteArray = stream.toByteArray()
+    return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
 }

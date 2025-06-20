@@ -102,6 +102,8 @@ dependencies {
     implementation(libs.camera2)
     implementation(libs.cameraLifecycle)
     implementation(libs.cameraView)
+    implementation(libs.guava)
+    implementation(libs.kotlinx.coroutines.guava)
 
 
 

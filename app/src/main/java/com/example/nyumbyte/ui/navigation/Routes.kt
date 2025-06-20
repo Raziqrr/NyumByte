@@ -9,6 +9,7 @@
 package com.example.nyumbyte.ui.navigation
 
 import androidx.annotation.StringRes
+import androidx.compose.material.Text
 import com.example.nyumbyte.R
 
 enum class Screens(@StringRes val title: Int){
@@ -26,4 +27,6 @@ enum class Screens(@StringRes val title: Int){
     ChallengePage(title = (R.string.challenge_page)),
     SocialPage(title = (R.string.social)),
     RewardsPage(title = (R.string.rewards_page)),
+    ScanScreen(title = (R.string.ScanScreen)),
+    ResultScreen(title = (R.string.ResultScreen))
 }

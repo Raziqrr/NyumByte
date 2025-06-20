@@ -15,7 +15,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.nyumbyte.data.model.Health
+import com.example.nyumbyte.data.repository.HealthRepository
+import com.example.nyumbyte.ui.navigation.Screens
+import com.example.nyumbyte.util.getCurrentWeekId
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.*
 
 @Composable
 fun ResultScreen(
@@ -31,7 +39,9 @@ fun ResultScreen(
         val result = fetchGeminiSuggestion(label)
         suggestion = result.suggestion
         calorieText = "${result.calorie} kcal"
-        viewModel.setCalorie(result.calorie)
+
+        val calorieInt = result.calorie.toIntOrNull() ?: 0
+        viewModel.setCalorie(calorieInt)
     }
 
     Column(
@@ -55,7 +65,6 @@ fun ResultScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Detected Food Card
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -66,22 +75,16 @@ fun ResultScreen(
             shape = RoundedCornerShape(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Detected Food",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Text("Detected Food", style = MaterialTheme.typography.labelMedium)
                 Text(
                     text = label,
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface
+                    )
                 )
             }
         }
 
-        // Calorie Estimate Card
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -92,22 +95,16 @@ fun ResultScreen(
             shape = RoundedCornerShape(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Calorie Estimate",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer
-                )
+                Text("Calorie Estimate", style = MaterialTheme.typography.labelMedium)
                 Text(
                     text = calorieText,
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontWeight = FontWeight.Medium
-                    ),
-                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
                 )
             }
         }
 
-        // Nutritional Suggestions Card
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -118,28 +115,18 @@ fun ResultScreen(
             shape = RoundedCornerShape(16.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Nutritional Insights",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Text("Nutritional Insights", style = MaterialTheme.typography.labelMedium)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = suggestion,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Text(suggestion, style = MaterialTheme.typography.bodyLarge)
             }
         }
 
-        // Buttons
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // ✅ Add to Calorie Goal Button
             Button(
                 onClick = {
                     scope.launch {
@@ -155,12 +142,7 @@ fun ResultScreen(
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             ) {
-                Text(
-                    text = "Add to Calorie Goal",
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Bold
-                    )
-                )
+                Text("Add to Calorie Goal", style = MaterialTheme.typography.labelLarge)
             }
 
             Button(
@@ -168,44 +150,43 @@ fun ResultScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Text(
-                    text = "Scan Again",
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Bold
-                    )
-                )
+                Text("Scan Again", style = MaterialTheme.typography.labelLarge)
             }
 
             Button(
-                onClick = { navController.navigate("home") },
+                onClick = { navController.navigate(Screens.Home.name) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Text(
-                    text = "Return Home",
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Bold
-                    )
-                )
+                Text("Return Home", style = MaterialTheme.typography.labelLarge)
             }
         }
     }
 }
 
-// This function just logs for now
-fun sendToCalorieGoal(calorieAmount: Int) {
-    Log.d("CalorieGoal", "Sending $calorieAmount kcal to calorie tracker.")
-    // Replace with actual integration or Firebase logic
+suspend fun sendToCalorieGoal(calorieAmount: Int) {
+    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+    val week = getCurrentWeekId()
+    val today = LocalDate.now().dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+
+    try {
+        val existing = HealthRepository.getHealthData(uid, week)
+        val updatedCalorieMap = existing?.calorieIntake?.toMutableMap() ?: mutableMapOf()
+        updatedCalorieMap[today] = (updatedCalorieMap[today] ?: 0) + calorieAmount
+
+        val newHealth = Health(
+            week = week,
+            calorieIntake = updatedCalorieMap,
+            waterIntake = existing?.waterIntake ?: emptyMap()
+        )
+
+        HealthRepository.saveHealthData(uid, week, newHealth)
+        Log.d("CalorieGoal", "Saved $calorieAmount kcal to $today")
+    } catch (e: Exception) {
+        Log.e("CalorieGoal", "Error saving to Firebase", e)
+    }
 }

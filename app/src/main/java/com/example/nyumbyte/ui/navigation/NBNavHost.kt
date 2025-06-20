@@ -38,6 +38,8 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.unit.IntOffset
+import com.example.nyumbyte.ui.screens.foodscanner.ResultScreen
+import com.example.nyumbyte.ui.screens.foodscanner.ScanScreen
 import com.example.nyumbyte.ui.screens.rewards.RewardViewModel
 import com.example.nyumbyte.ui.screens.rewards.RewardsPage
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -184,6 +186,17 @@ fun NBNavHost(
                 onBack = {},
                 rewardViewModel = rewardViewModel
             )
+        }
+
+        composable(route = Screens.ScanScreen.name) {
+            ScanScreen(navController = navController)
+        }
+
+        composable(
+            route = "${Screens.ResultScreen.name}/{label}"
+        ) { backStackEntry ->
+            val label = backStackEntry.arguments?.getString("label") ?: "Unknown"
+            ResultScreen(label = label, navController = navController)
         }
     }
 }
