@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-09 14:43:17
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-20 08:20:34
+ * @LastEditTime: 2025-06-20 08:55:26
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/home/Home.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -48,12 +48,16 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobileproject.screens.ai_assisstant.ChatViewModel
+import com.example.nyumbyte.data.network.firebase.UserUiState
 import com.example.nyumbyte.ui.navigation.NBNavHost
+import com.example.nyumbyte.ui.screens.profile.ProfileViewModel
 import com.example.nyumbyte.ui.screens.rewards.RewardViewModel
+import com.example.nyumbyte.ui.screens.rewards.RewardViewModelFactory
 
 @OptIn(ExperimentalAnimationApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -64,25 +68,32 @@ fun Home(
     dietPlanViewModel: DietPlanViewModel,
     authViewModel: AuthViewModel,
     chatViewModel: ChatViewModel,
-    rewardViewModel: RewardViewModel
+    profileViewModel: ProfileViewModel
 ) {
     val homeNavController = rememberNavController()
+
+    val userState = userViewModel.userUiState.collectAsState().value
+    val uid = (userState as? UserUiState.Success)?.user?.id ?: return
+
+    val rewardViewModel: RewardViewModel = viewModel(
+        factory = RewardViewModelFactory(uid)
+    )
+
 
     val dummyItems = listOf(
         NavBarItem(Screens.Home.name, Icons.Default.Home, "Home"),
         NavBarItem(Screens.Broco.name, Icons.Filled.ChatBubble, "Broco"),
         NavBarItem("Scan", Icons.Filled.CameraAlt, "Scan"),
-        NavBarItem("Rewards", Icons.Default.Flag, "Rewards"),
-        NavBarItem("profile", Icons.Default.Person, "Profile"),
+        NavBarItem(Screens.RewardsPage.name, Icons.Default.Flag, "Rewards"),
+        NavBarItem(Screens.Profile.name, Icons.Default.Person, "Profile"),
         NavBarItem(Screens.ChallengePage.name, Icons.Default.Flag, "Challenges")
     )//Dummy list
     val currentDestination = homeNavController.currentBackStackEntryAsState().value?.destination?.route
 
-    val hideBottomBarRoutes = listOf(Screens.Home.name)
+    val hideBottomBarRoutes = listOf(Screens.Home.name, Screens.RewardsPage.name, Screens.Profile.name)
 
     val showBottomBar = currentDestination in hideBottomBarRoutes
     val bottomPadding = if (showBottomBar) 80.dp else 0.dp // Match your nav bar height
-
 
     Scaffold(
         bottomBar = {
@@ -106,7 +117,10 @@ fun Home(
             dietPlanViewModel = dietPlanViewModel,
             chatViewModel = chatViewModel,
             startDestination = Screens.Home.name,
-            rewardViewModel = rewardViewModel
+            rewardViewModel = rewardViewModel,
+            profileViewModel = profileViewModel,
+            uid = uid
+
         )
     }
 }
