@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-06 01:50:49
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-20 10:12:50
+ * @LastEditTime: 2025-06-20 10:27:46
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/navigation/NBNavHost.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -244,7 +244,8 @@ fun NBNavHost(
                 navController = navController
             )}
         }
-
+        
+        
         composable(route = Screens.ChallengePage.name){
             ChallengePage(
                 onBack = { navController.popBackStack() },

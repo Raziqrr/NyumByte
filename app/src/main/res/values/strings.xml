@@ -21,4 +21,6 @@
     <string name="profile">Profile</string>
     <string name="challenge_detail">Challenge Detail</string>
     <string name="health">Health</string>
+    <string name="scan">Scan</string>
+    <string name="scan_result">Scan Result</string>
 </resources>
