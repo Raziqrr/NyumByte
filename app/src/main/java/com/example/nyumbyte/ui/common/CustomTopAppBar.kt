@@ -49,7 +49,7 @@ fun CustomTopAppBar(
     onBackClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    val surfaceTint = MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.15f)
+    val surfaceTint = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f)
 
     CenterAlignedTopAppBar(
         windowInsets = WindowInsets(left = 10.dp, bottom = 5.dp, top = 15.dp),
@@ -61,7 +61,8 @@ fun CustomTopAppBar(
         title = {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.primary
             )
         },
         navigationIcon = {

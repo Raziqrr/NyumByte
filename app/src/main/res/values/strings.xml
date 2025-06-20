@@ -18,6 +18,7 @@
     <string name="my_diet_plan">My Diet Plan</string>
     <string name="new_diet_plan">New Diet Plan</string>
     <string name="broco">Broco</string>
-    <string name="ScanScreen">Scan Screen</string>
-    <string name="ResultScreen">Result Screen</string>
+    <string name="profile">Profile</string>
+    <string name="challenge_detail">Challenge Detail</string>
+    <string name="health">Health</string>
 </resources>
