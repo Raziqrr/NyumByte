@@ -67,25 +67,36 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun updateStreakIfNeeded(uid: String) {
-        val today = getTodayDate()
-        val yesterday = getYesterdayDate()
-
-        if (_lastCompletedDate.value == today) return // already counted today
-
-        val newStreak = when (_lastCompletedDate.value) {
-            yesterday -> _streakCount.value + 1
-            else -> 1 // reset
-        }
-
-        _streakCount.value = newStreak
-        _lastCompletedDate.value = today
-
-        // Save to Firestore
         viewModelScope.launch {
-            FirestoreRepository.updateUserField(uid, "streakCount", newStreak)
-            FirestoreRepository.updateUserField(uid, "lastCompletedDate", today)
+            try {
+                val data = FirestoreRepository.getUserData(uid)
+                val lastDate = data?.get("lastCompletedDate") as? String ?: ""
+                val currentStreak = (data?.get("streakCount") as? Long)?.toInt() ?: 0
+
+                val today = getTodayDate()
+                val yesterday = getYesterdayDate()
+
+                if (lastDate == today) return@launch // already updated today
+
+                val newStreak = when (lastDate) {
+                    yesterday -> currentStreak + 1
+                    else -> 1
+                }
+
+                _streakCount.value = newStreak
+                _lastCompletedDate.value = today
+
+                FirestoreRepository.updateUserField(uid, "streakCount", newStreak)
+                FirestoreRepository.updateUserField(uid, "lastCompletedDate", today)
+
+                Log.d("StreakUpdate", "Updated to $newStreak on $today")
+
+            } catch (e: Exception) {
+                Log.e("ProfileViewModel", "Error updating streak", e)
+            }
         }
     }
+
 
     fun resetStreak(uid: String) {
         val oldDate = getYesterdayDate() // or you can use getYesterdayDate() if you want

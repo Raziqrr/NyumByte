@@ -104,9 +104,7 @@ fun ProfileScreen(
 
     val scrollState = rememberScrollState()
     // Let's say each carrot eaten = 14 points (5 carrots max = 70 points)
-    LaunchedEffect(true) {
-        viewModel.resetStreak(uid)
-    }
+
 
 
     LaunchedEffect(uid) {
@@ -135,9 +133,7 @@ fun ProfileScreen(
     val loading by viewModel.loading.collectAsState()
     val error by viewModel.error.collectAsState()
 
-    LaunchedEffect(uid) {
-        viewModel.loadUserData(uid)
-    }
+
 
     when {
         loading -> CircularProgressIndicator()
