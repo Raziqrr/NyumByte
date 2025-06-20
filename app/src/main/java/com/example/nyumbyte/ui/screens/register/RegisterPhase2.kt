@@ -149,7 +149,10 @@ fun RegisterPhase2(
                         ethnicity = ethnicity,
                         level = 1,
                         exp = 0,
-                        totalPoints = 0
+                        totalPoints = 0,
+                        friends = listOf(),
+                        dietPlan = listOf(),
+                        calorieToday = 0,
                     )
 
                     isLoading = true

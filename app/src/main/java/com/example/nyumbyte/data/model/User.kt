@@ -57,7 +57,7 @@ data class User(
     }
 
     companion object {
-        fun fromMap(map: Map<String, Any?>): User {
+        fun fromMap(map: Map<String, Any>): User {
             return User(
                 id = map["id"] as? String ?: "",
                 userName = map["userName"] as? String ?: "",
