@@ -1,4 +1,5 @@
 [versions]
+camera = "1.3.0"
 accompanistCoil = "0.28.0"
 accompanistNavigationAnimation = "0.34.0"
 agp = "8.7.2"
@@ -32,6 +33,9 @@ composeMarkdown = "0.3.3"
 
 
 [libraries]
+camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camera" }
+cameraLifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camera" }
+cameraView = { module = "androidx.camera:camera-view", version.ref = "camera" }
 accompanist-navigation-animation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanistNavigationAnimation" }
 androidx-animation = { module = "androidx.compose.animation:animation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

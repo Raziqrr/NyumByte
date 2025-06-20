@@ -98,6 +98,13 @@ dependencies {
     // navigation
     implementation(libs.androidx.navigation.compose)
 
+    // camera
+    implementation(libs.camera2)
+    implementation(libs.cameraLifecycle)
+    implementation(libs.cameraView)
+
+
+
     // viewmodel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx.v270)
