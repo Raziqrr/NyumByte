@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-09 14:43:17
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-20 05:47:00
+ * @LastEditTime: 2025-06-20 08:20:34
  * @FilePath: app/src/main/java/com/example/nyumbyte/ui/screens/home/Home.kt
  * @Description: 这是默认设置,可以在设置》工具》File Description中进行配置
  */
@@ -53,6 +53,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobileproject.screens.ai_assisstant.ChatViewModel
 import com.example.nyumbyte.ui.navigation.NBNavHost
+import com.example.nyumbyte.ui.screens.rewards.RewardViewModel
 
 @OptIn(ExperimentalAnimationApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -62,7 +63,8 @@ fun Home(
     userViewModel: UserViewModel,
     dietPlanViewModel: DietPlanViewModel,
     authViewModel: AuthViewModel,
-    chatViewModel: ChatViewModel
+    chatViewModel: ChatViewModel,
+    rewardViewModel: RewardViewModel
 ) {
     val homeNavController = rememberNavController()
 
@@ -103,7 +105,8 @@ fun Home(
             userViewModel = userViewModel,
             dietPlanViewModel = dietPlanViewModel,
             chatViewModel = chatViewModel,
-            startDestination = Screens.Home.name
+            startDestination = Screens.Home.name,
+            rewardViewModel = rewardViewModel
         )
     }
 }
