@@ -2,7 +2,7 @@
  * @Author: Raziqrr rzqrdzn03@gmail.com
  * @Date: 2025-06-06 01:12:09
  * @LastEditors: Raziqrr rzqrdzn03@gmail.com
- * @LastEditTime: 2025-06-20 06:54:26
+ * @LastEditTime: 2025-06-20 08:02:53
  * @FilePath: app/src/main/java/com/example/nyumbyte/data/model/User.kt
  * @Description: Improved data model with safe conversion
  */
@@ -35,7 +35,7 @@ data class User(
     var calorieToday: Int,
 
 ) {
-    fun toMap(): Map<String, Any?> {
+    fun toMap(): Map<String, Any> {
         return mapOf(
             "id" to id,
             "userName" to userName,
